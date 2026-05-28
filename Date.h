@@ -35,7 +35,7 @@ private:
 // Output
 std::ostream &operator<<(std::ostream &os, const Date &date);
 
-// Arithmetic/Comparison
-double operator-(const Date &d1, const Date &d2);
+// Arithmetic
+double operator-(const Date &date1, const Date &date2);
 
 #endif
