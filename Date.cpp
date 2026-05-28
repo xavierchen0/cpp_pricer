@@ -1,5 +1,15 @@
 #include "Date.h"
 
+// Helper function to get date in years
+namespace {
+
+// Assume 30/360 day count fraction
+double getYearFrac(const Date &date) {
+  return date.getYear() + date.getMonth() / 12.0 + date.getDay() / 360.0;
+}
+
+} // namespace
+
 std::istream &operator>>(std::istream &is, Date &date) {
   int year{};
   int month{};
@@ -28,12 +38,5 @@ std::ostream &operator<<(std::ostream &os, const Date &d) {
 
 // return date difference in fraction of year
 double operator-(const Date &date1, const Date &date2) {
-  int yearDiff = date1.getYear() - date2.getYear();
-  int monthDiff = date1.getMonth() - date2.getMonth();
-  int dayDiff = date1.getDay() - date2.getDay();
-
-  // Perform floating point division instead of integer division (e.g. 12.0
-  // or 365.0 instead of 12 or 365)
-  return yearDiff + monthDiff / 12.0 +
-         dayDiff / 360.0; // assume 30/360 day count fraction
+  return getYearFrac(date1) - getYearFrac(date2);
 }
