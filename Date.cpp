@@ -1,4 +1,5 @@
 #include "Date.h"
+#include <cmath>
 
 // Helper function to get date in years
 namespace {
@@ -43,3 +44,18 @@ std::ostream &operator<<(std::ostream &os, const Date &d) {
 double operator-(const Date &date1, const Date &date2) {
   return (getTotalDays(date1) - getTotalDays(date2)) / 360.0;
 }
+
+Date operator+(const Date &date, double year_frac) {
+  double totalDays{year_frac * 360.0};
+  int daysToAdd{static_cast<int>(std::round(totalDays))};
+  int startDays{getTotalDays(date)};
+  int endDays{startDays + daysToAdd};
+
+  int newYear{endDays / 360};
+  int newMonth{(endDays % 360) / 30 + 1};
+  int newDay{endDays % 30 + 1};
+
+  return Date{newYear, newMonth, newDay};
+}
+
+// bool operator==(const Date &d1, const Date &d2) {}
