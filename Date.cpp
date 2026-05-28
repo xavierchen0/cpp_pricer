@@ -3,9 +3,12 @@
 // Helper function to get date in years
 namespace {
 
-// Assume 30/360 day count fraction
-double getYearFrac(const Date &date) {
-  return date.getYear() + date.getMonth() / 12.0 + date.getDay() / 360.0;
+// Assume 30/360 day count convention
+int getTotalDays(const Date &date) {
+  // Handle the case of 31st day and make it 30th day to align with 30/360 day
+  // count convention
+  int day{date.getDay() > 30 ? 30 : date.getDay()};
+  return date.getYear() * 360 + (date.getMonth() - 1) * 30 + (day - 1);
 }
 
 } // namespace
