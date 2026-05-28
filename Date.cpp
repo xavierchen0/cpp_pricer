@@ -41,5 +41,5 @@ std::ostream &operator<<(std::ostream &os, const Date &d) {
 
 // return date difference in fraction of year
 double operator-(const Date &date1, const Date &date2) {
-  return getYearFrac(date1) - getYearFrac(date2);
+  return (getTotalDays(date1) - getTotalDays(date2)) / 360.0;
 }
