@@ -69,3 +69,13 @@ bool operator==(const Date &date1, const Date &date2) {
 bool operator!=(const Date &date1, const Date &date2) {
   return !(date1 == date2);
 }
+
+bool operator<(const Date &date1, const Date &date2) {
+  if (date1.getYear() != date2.getYear())
+    return date1.getYear() < date2.getYear();
+  if (date1.getMonth() != date2.getMonth())
+    return date1.getMonth() < date2.getMonth();
+  return date1.getDay() < date2.getDay();
+}
+
+bool operator>(const Date &date1, const Date &date2) { return date2 < date1; }
