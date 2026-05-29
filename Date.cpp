@@ -79,3 +79,11 @@ bool operator<(const Date &date1, const Date &date2) {
 }
 
 bool operator>(const Date &date1, const Date &date2) { return date2 < date1; }
+
+bool operator<=(const Date &date1, const Date &date2) {
+  return !(date1 > date2);
+}
+
+bool operator>=(const Date &date1, const Date &date2) {
+  return !(date1 < date2);
+}
