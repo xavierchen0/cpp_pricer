@@ -42,5 +42,8 @@ double operator-(const Date &date1, const Date &date2);
 // Initialise new Date object by adding fraction of year to initial Date object
 Date operator+(const Date &date1, double year_frac);
 
+// Comparison
+bool operator==(const Date &date1, const Date &date2);
+bool operator!=(const Date &date1, const Date &date2);
 
 #endif

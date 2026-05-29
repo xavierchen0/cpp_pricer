@@ -60,4 +60,12 @@ Date operator+(const Date &date, double year_frac) {
   return Date{newYear, newMonth, newDay};
 }
 
-// bool operator==(const Date &d1, const Date &d2) {}
+bool operator==(const Date &date1, const Date &date2) {
+  return date1.getYear() == date2.getYear() &&
+         date1.getMonth() == date2.getMonth() &&
+         date1.getDay() == date2.getDay();
+}
+
+bool operator!=(const Date &date1, const Date &date2) {
+  return !(date1 == date2);
+}
