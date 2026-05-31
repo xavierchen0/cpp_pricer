@@ -1,4 +1,5 @@
 #include "Market.h"
+#include <iomanip>
 #include <stdexcept>
 
 void RateCurve::addRate(const Date &tenor, double rate) {
@@ -46,10 +47,19 @@ double RateCurve::getRate(const Date &tenor) const {
 }
 
 void RateCurve::display() const {
-  std::cout << "rate curve:" << name << '\n';
+  std::cout << "\n----------------------------------------\n";
+  std::cout << "  RATE CURVE: " << name << "\n";
+  std::cout << "----------------------------------------\n";
+  std::cout << std::left << std::setw(15) << "  Tenor (Date)" << " | "
+            << "Rate (%)\n";
+  std::cout << "----------------------------------------\n";
+
   for (const auto &[date, rate] : curveData) {
-    std::cout << date << ":" << rate << '\n';
+    std::cout << "  " << std::left << std::setw(13) << date << " | "
+              << std::fixed << std::setprecision(4) << (rate * 100.0) << "%\n";
   }
+
+  std::cout << "----------------------------------------\n";
 }
 
 void VolCurve::addVol(const Date &tenor, double vol) {
@@ -97,37 +107,47 @@ double VolCurve::getVol(const Date &tenor) const {
 }
 
 void VolCurve::display() const {
-  std::cout << "vol curve:" << name << '\n';
+  std::cout << "\n----------------------------------------\n";
+  std::cout << "  VOLATILITY CURVE: " << name << "\n";
+  std::cout << "----------------------------------------\n";
+  std::cout << std::left << std::setw(15) << "  Tenor (Date)" << " | "
+            << "Volatility (%)\n";
+  std::cout << "----------------------------------------\n";
+
   for (const auto &[date, vol] : volData) {
-    std::cout << date << ":" << vol << '\n';
+    std::cout << "  " << std::left << std::setw(13) << date << " | "
+              << std::fixed << std::setprecision(2) << (vol * 100.0) << "%\n";
   }
+
+  std::cout << "----------------------------------------\n";
 }
 
-void Market::Print() const {
-  std::cout << "market asof: " << asOf << std::endl;
+void Market::display() const {
+  std::cout << "\n==================================================\n";
+  std::cout << " MARKET DATA  [AsOf: " << m_asOf << "]\n";
+  std::cout << "==================================================\n";
 
-  for (auto curve : curves) {
-    curve.second.display();
+  for (const auto &[name, rateCurve] : m_rates) {
+    rateCurve.display();
   }
-  for (auto vol : vols) {
-    vol.second.display();
+
+  for (const auto &[name, volCurve] : m_vols) {
+    volCurve.display();
   }
-  /*
-  add display for bond price and stock price
 
-  */
-}
+  std::cout << "\n  BOND PRICES:\n";
+  std::cout << "  ----------------------------------\n";
+  for (const auto &[name, price] : m_bondPrices) {
+    std::cout << "    " << std::left << std::setw(15) << name << " => "
+              << std::fixed << std::setprecision(3) << price.value << "\n";
+  }
 
-void Market::addCurve(const std::string &curveName, const RateCurve &curve) {
-  curves.emplace(curveName, curve);
-}
+  std::cout << "\n  STOCK PRICES:\n";
+  std::cout << "  ----------------------------------\n";
+  for (const auto &[name, price] : m_stockPrices) {
+    std::cout << "    " << std::left << std::setw(15) << name << " => "
+              << std::fixed << std::setprecision(2) << price.value << "\n";
+  }
 
-std::ostream &operator<<(std::ostream &os, const Market &mkt) {
-  os << mkt.asOf << std::endl;
-  return os;
-}
-
-std::istream &operator>>(std::istream &is, Market &mkt) {
-  is >> mkt.asOf;
-  return is;
+  std::cout << "\n==================================================\n";
 }
