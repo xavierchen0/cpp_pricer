@@ -3,22 +3,35 @@
 
 #include "Date.h"
 #include <iostream>
+#include <map>
 #include <unordered_map>
 #include <vector>
 
 class RateCurve {
 public:
-  RateCurve() {};
-  RateCurve(const std::string &_name) : name(_name) {};
-  void addRate(Date tenor, double rate);
-  double getRate(
-      Date tenor) const; // implement this function using linear interpolation
+  RateCurve() = default;
+
+  // Use of 'explicit' keyword to prevent implicit conversions, thus leading to
+  // unwanted bugs.
+  //
+  // Use of std::move to convert the parameter _name from an lvalue to rvalue to
+  // invoke std::string's move constructor, thereby eliminating unnecessary
+  // copying to create a temporary object.
+  explicit RateCurve(std::string _name) : name{std::move(_name)} {};
+
+  // Use of reference & prevents copying of Date object to initialise the tenor
+  // parameter, thereby saving one copy operation.
+  void addRate(const Date &tenor, double rate);
+
+  double getRate(const Date &tenor) const;
+
   void display() const;
 
 private:
   std::string name;
-  std::vector<Date> tenorDates;
-  std::vector<double> rates;
+  // std::map is a sorted associative container that stores unique key-value
+  // pairs ordered by their keys.
+  std::map<Date, double> curveData{};
 };
 
 class VolCurve { // atm vol curve without smile
