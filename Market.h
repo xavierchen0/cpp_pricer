@@ -5,7 +5,6 @@
 #include <iostream>
 #include <map>
 #include <unordered_map>
-#include <vector>
 
 class RateCurve {
 public:
@@ -61,61 +60,65 @@ private:
   std::map<Date, double> volData{};
 };
 
-class Market {
-public:
-  Date asOf;
-  std::string name;
-
-  Market() {
-    std::cout << "default market constructor is called by object@" << this
-              << std::endl;
-  }
-
-  Market(const Date &now) : asOf(now) {
-    std::cout << "market constructor is called by object@" << this << std::endl;
-    name = "test_market";
-  }
-
-  Market(const Market &other) : asOf(other.asOf) {
-    std::cout << "copy constructor is called by object@" << this << std::endl;
-    // deep copy behaviour
-    asOf = other.asOf;
-    name = other.name;
-  }
-
-  Market &operator=(const Market &other) {
-    std::cout << "assignment constructor is called by object@" << this
-              << std::endl;
-    if (this != &other) { // Check for self-assignment
-      asOf = other.asOf;
-      name = other.name;
-    }
-    return *this;
-  }
-
-  ~Market() { std::cout << "Market destructor is called" << std::endl; }
-
-  void Print() const;
-  void addCurve(const std::string &curveName,
-                const RateCurve &curve); // implement this
-  void addVolCurve(const std::string &curveName,
-                   const VolCurve &curve); // implement this
-  void addBondPrice(const std::string &bondName, double price); // implement
-                                                                // this
-  void addVolCurve(const std::string &stockName, double price); // implement
-                                                                // this
-
-  inline RateCurve getCurve(const std::string &name) { return curves[name]; };
-  inline VolCurve getVolCurve(const std::string &name) { return vols[name]; };
-
-private:
-  std::unordered_map<std::string, VolCurve> vols;
-  std::unordered_map<std::string, RateCurve> curves;
-  std::unordered_map<std::string, double> bondPrices;
-  std::unordered_map<std::string, double> stockPrices;
+struct BondPrice {
+  double value{};
+  operator double() const { return value; }
 };
 
-std::ostream &operator<<(std::ostream &os, const Market &obj);
-std::istream &operator>>(std::istream &is, Market &obj);
+struct StockPrice {
+  double value{};
+  operator double() const { return value; }
+};
+
+class Market {
+public:
+  Market() = default;
+
+  Market(const Date &now) : m_asOf(now) {}
+
+  Date getCurrentDate() const { return m_asOf; }
+  void setCurrentDate(const Date &now) { m_asOf = now; }
+
+  // Setter to add/overwrite market data in their respective containers
+  template <typename T> void addMarketData(std::string name, T data) {
+    getMap<T>().insert_or_assign(std::move(name), std::move(data));
+  }
+
+  // Getter to get market data in their respective containers
+  template <typename T> const T &getMarketData(const std::string &name) const {
+    return getMap<T>().at(name);
+  }
+
+  void display() const;
+
+private:
+  Date m_asOf{};
+
+  std::unordered_map<std::string, RateCurve> m_rates{};
+  std::unordered_map<std::string, VolCurve> m_vols{};
+  std::unordered_map<std::string, BondPrice> m_bondPrices{};
+  std::unordered_map<std::string, StockPrice> m_stockPrices{};
+
+  template <typename T> auto &getMap();             // for setter
+  template <typename T> const auto &getMap() const; // for getter
+};
+
+template <> inline auto &Market::getMap<RateCurve>() { return m_rates; }
+template <> inline auto &Market::getMap<VolCurve>() { return m_vols; }
+template <> inline auto &Market::getMap<BondPrice>() { return m_bondPrices; }
+template <> inline auto &Market::getMap<StockPrice>() { return m_stockPrices; }
+
+template <> inline const auto &Market::getMap<RateCurve>() const {
+  return m_rates;
+}
+template <> inline const auto &Market::getMap<VolCurve>() const {
+  return m_vols;
+}
+template <> inline const auto &Market::getMap<BondPrice>() const {
+  return m_bondPrices;
+}
+template <> inline const auto &Market::getMap<StockPrice>() const {
+  return m_stockPrices;
+}
 
 #endif

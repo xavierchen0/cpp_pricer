@@ -1,6 +1,7 @@
 #include "Market.h"
 #include <iomanip>
 #include <stdexcept>
+#include <utility>
 
 void RateCurve::addRate(const Date &tenor, double rate) {
   // If tenor does not exist in curveData, add to curveData,
