@@ -34,19 +34,31 @@ private:
   std::map<Date, double> curveData{};
 };
 
-class VolCurve { // atm vol curve without smile
+class VolCurve {
 public:
-  VolCurve() {}
-  VolCurve(const std::string &_name) : name(_name) {};
-  void addVol(Date tenor, double rate); // implement this
-  double getVol(
-      Date tenor) const; // implement this function using linear interpolation
-  void display() const;  // implement this
+  VolCurve() = default;
+
+  // Use of 'explicit' keyword to prevent implicit conversions, thus leading to
+  // unwanted bugs.
+  //
+  // Use of std::move to convert the parameter _name from an lvalue to rvalue to
+  // invoke std::string's move constructor, thereby eliminating unnecessary
+  // copying to create a temporary object.
+  explicit VolCurve(std::string _name) : name{std::move(_name)} {};
+
+  // Use of reference & prevents copying of Date object to initialise the tenor
+  // parameter, thereby saving one copy operation.
+  void addVol(const Date &tenor, double vol);
+
+  double getVol(const Date &tenor) const;
+
+  void display() const;
 
 private:
   std::string name;
-  std::vector<Date> tenors;
-  std::vector<double> vols;
+  // std::map is a sorted associative container that stores unique key-value
+  // pairs ordered by their keys.
+  std::map<Date, double> volData{};
 };
 
 class Market {
