@@ -126,7 +126,7 @@ void VolCurve::display() const {
 
 void Market::display() const {
   std::cout << "\n==================================================\n";
-  std::cout << " MARKET DATA  [AsOf: " << m_asOf << "]\n";
+  std::cout << " MARKET DATA  [Valuation Date: " << m_asOf << "]\n";
   std::cout << "==================================================\n";
 
   for (const auto &[name, rateCurve] : m_rates) {
@@ -141,8 +141,9 @@ void Market::display() const {
   std::cout << "  ----------------------------------\n";
   for (const auto &[name, price] : m_bondPrices) {
     std::cout << "    " << std::left << std::setw(15) << name << " => "
-              << std::fixed << std::setprecision(3) << price.value << "\n";
+              << std::fixed << std::setprecision(2) << price.value << "\n";
   }
+  std::cout << "  ----------------------------------\n";
 
   std::cout << "\n  STOCK PRICES:\n";
   std::cout << "  ----------------------------------\n";
@@ -150,6 +151,7 @@ void Market::display() const {
     std::cout << "    " << std::left << std::setw(15) << name << " => "
               << std::fixed << std::setprecision(2) << price.value << "\n";
   }
+  std::cout << "  ----------------------------------\n";
 
   std::cout << "\n==================================================\n";
 }
