@@ -137,14 +137,14 @@ void loadRateCurve(Market &market, const std::filesystem::path &filePath) {
 }
 
 void loadVolCurve(Market &market, const std::filesystem::path &filePath,
-                  const std::string_view curveName) {
+                  const std::string &curveName) {
   std::ifstream file{filePath};
   if (!file.is_open()) {
     throw std::runtime_error(std::format(
         "Error: Could not open vol curve file: {}", filePath.string()));
   }
 
-  VolCurve vc{};
+  VolCurve vc{curveName};
   std::string line{};
   while (std::getline(file, line)) {
     std::string_view lineView{trimView(line)};
@@ -169,5 +169,5 @@ void loadVolCurve(Market &market, const std::filesystem::path &filePath,
 
     vc.addVol(tenorDate, volVal);
   }
-  market.addMarketData(std::string(curveName), vc);
+  market.addMarketData(curveName, vc);
 }
