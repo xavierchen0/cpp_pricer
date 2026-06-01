@@ -1,6 +1,7 @@
 #include "Date.h"
 #include <cmath>
 #include <iomanip>
+#include <sstream>
 
 // Helper function to get date in years
 namespace {
@@ -37,8 +38,13 @@ std::istream &operator>>(std::istream &is, Date &date) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Date &d) {
-  os << d.getYear() << "-" << std::setfill('0') << std::setw(2) << d.getMonth()
-     << "-" << std::setfill('0') << std::setw(2) << d.getDay();
+  std::ostringstream tempstream{};
+  tempstream << d.getYear() << "-" << std::setfill('0') << std::setw(2)
+             << d.getMonth() << "-" << std::setfill('0') << std::setw(2)
+             << d.getDay();
+
+  os << tempstream.str();
+
   return os;
 }
 
