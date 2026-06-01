@@ -26,12 +26,16 @@ Date parseTenor(const Date &now, const std::string_view tenor) {
         std::format("Error: Invalid numeric prefix in tenor: {}", tenor));
   }
 
+  constexpr double daysInYear{360.0};
+  constexpr double daysInWeek{7.0};
+  constexpr double monthsInYear{12.0};
+
   if (unit == 'D' || unit == 'd') {
-    return now + (time / 360.0);
+    return now + (time / daysInYear);
   } else if (unit == 'W' || unit == 'w') {
-    return now + ((time * 7.0) / 360.0);
+    return now + ((time * daysInWeek) / daysInYear);
   } else if (unit == 'M' || unit == 'm') {
-    return now + (time / 12.0);
+    return now + (time / monthsInYear);
   } else if (unit == 'Y' || unit == 'y') {
     return now + time;
   }
