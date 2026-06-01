@@ -19,7 +19,7 @@ std::string_view trimView(const std::string_view str);
 // Functions to load data into Market object from files; Modify in-place
 void loadRateCurve(Market &market, const std::filesystem::path &filePath);
 void loadVolCurve(Market &market, const std::filesystem::path &filePath,
-                  const std::string_view volCurveName);
+                  const std::string &curveName);
 void loadStockPrices(Market &market, const std::filesystem::path &filePath);
 void loadBondPrices(Market &market, const std::filesystem::path &filePath);
 

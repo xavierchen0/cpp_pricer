@@ -1,5 +1,6 @@
 #include "Market.h"
 #include <iomanip>
+#include <iostream>
 #include <stdexcept>
 #include <utility>
 
