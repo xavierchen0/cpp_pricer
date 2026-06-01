@@ -2,7 +2,6 @@
 #define MARKET_H
 
 #include "Date.h"
-#include <iostream>
 #include <map>
 #include <unordered_map>
 
