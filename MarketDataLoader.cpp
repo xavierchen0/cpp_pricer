@@ -171,3 +171,41 @@ void loadVolCurve(Market &market, const std::filesystem::path &filePath,
   }
   market.addMarketData(curveName, vc);
 }
+
+void loadStockPrices(Market &market, const std::filesystem::path &filePath) {
+  std::ifstream file{filePath};
+  if (!file.is_open()) {
+    throw std::runtime_error(std::format(
+        "Error: Could not open stock price file: {}", filePath.string()));
+  }
+
+  std::string line{};
+  while (std::getline(file, line)) {
+    std::string_view lineView{trimView(line)};
+    if (lineView.empty()) {
+      continue;
+    }
+
+    size_t colonPos{lineView.find(':')};
+    if (colonPos == std::string::npos) {
+      continue;
+    }
+
+    std::string_view stockStr{trimView(lineView.substr(0, colonPos))};
+    std::string_view priceStr{trimView(lineView.substr(colonPos + 1))};
+
+    if (stockStr.empty() || priceStr.empty()) {
+      continue;
+    }
+
+    double priceVal{};
+    auto [ptr, ec]{std::from_chars(
+        priceStr.data(), priceStr.data() + priceStr.size(), priceVal)};
+
+    if (ec != std::errc{} || ptr != (priceStr.data() + priceStr.size())) {
+      throw std::invalid_argument(
+          std::format("Error: Invalid stock price: {}", std::string(priceStr)));
+    }
+    market.addMarketData(std::string(stockStr), StockPrice{priceVal});
+  }
+}

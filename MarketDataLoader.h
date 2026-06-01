@@ -20,5 +20,6 @@ std::string_view trimView(const std::string_view str);
 void loadRateCurve(Market &market, const std::filesystem::path &filePath);
 void loadVolCurve(Market &market, const std::filesystem::path &filePath,
                   const std::string_view volCurveName);
+void loadStockPrices(Market &market, const std::filesystem::path &filePath);
 
 #endif
