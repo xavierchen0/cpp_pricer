@@ -7,7 +7,7 @@
 void RateCurve::addRate(const Date &tenor, double rate) {
   // If tenor does not exist in curveData, add to curveData,
   // otherwise, overwrite rate.
-  curveData[tenor] = rate;
+  curveData[tenor] = rate * 100.0;
 }
 
 double RateCurve::getRate(const Date &tenor) const {
@@ -58,7 +58,7 @@ void RateCurve::display() const {
 
   for (const auto &[date, rate] : curveData) {
     std::cout << "  " << std::left << std::setw(13) << date << " | "
-              << std::fixed << std::setprecision(4) << (rate * 100.0) << "%\n";
+              << std::fixed << std::setprecision(4) << (rate / 100.0) << "%\n";
   }
 
   std::cout << "----------------------------------------\n";
@@ -67,7 +67,7 @@ void RateCurve::display() const {
 void VolCurve::addVol(const Date &tenor, double vol) {
   // If tenor does not exist in volData, add to volData,
   // otherwise, overwrite rate.
-  volData[tenor] = vol;
+  volData[tenor] = vol * 100.0;
 }
 
 double VolCurve::getVol(const Date &tenor) const {
@@ -118,7 +118,7 @@ void VolCurve::display() const {
 
   for (const auto &[date, vol] : volData) {
     std::cout << "  " << std::left << std::setw(13) << date << " | "
-              << std::fixed << std::setprecision(2) << (vol * 100.0) << "%\n";
+              << std::fixed << std::setprecision(2) << (vol / 100.0) << "%\n";
   }
 
   std::cout << "----------------------------------------\n";
