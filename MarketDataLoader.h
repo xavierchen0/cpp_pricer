@@ -21,5 +21,6 @@ void loadRateCurve(Market &market, const std::filesystem::path &filePath);
 void loadVolCurve(Market &market, const std::filesystem::path &filePath,
                   const std::string_view volCurveName);
 void loadStockPrices(Market &market, const std::filesystem::path &filePath);
+void loadBondPrices(Market &market, const std::filesystem::path &filePath);
 
 #endif
