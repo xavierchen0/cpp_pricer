@@ -135,3 +135,39 @@ void loadRateCurve(Market &market, const std::filesystem::path &filePath) {
   }
   market.addMarketData(curveName, rc);
 }
+
+void loadVolCurve(Market &market, const std::filesystem::path &filePath,
+                  const std::string_view curveName) {
+  std::ifstream file{filePath};
+  if (!file.is_open()) {
+    throw std::runtime_error(std::format(
+        "Error: Could not open vol curve file: {}", filePath.string()));
+  }
+
+  VolCurve vc{};
+  std::string line{};
+  while (std::getline(file, line)) {
+    std::string_view lineView{trimView(line)};
+    if (lineView.empty()) {
+      continue;
+    }
+
+    size_t colonPos{lineView.find(':')};
+    if (colonPos == std::string::npos) {
+      continue;
+    }
+
+    std::string_view tenorStr{trimView(lineView.substr(0, colonPos))};
+    std::string_view volStr{trimView(lineView.substr(colonPos + 1))};
+
+    if (tenorStr.empty() || volStr.empty()) {
+      continue;
+    }
+
+    Date tenorDate{parseTenor(market.getCurrentDate(), tenorStr)};
+    double volVal{parsePercentage(volStr)};
+
+    vc.addVol(tenorDate, volVal);
+  }
+  market.addMarketData(std::string(curveName), vc);
+}
