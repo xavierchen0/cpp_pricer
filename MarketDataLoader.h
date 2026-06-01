@@ -2,6 +2,8 @@
 #define MARKET_DATA_LOADER_H
 
 #include "Date.h"
+#include "Market.h"
+#include <filesystem>
 #include <string_view>
 
 // Helper function to convert tenors (e.g. 3M, 6M) to a Date object relative to
@@ -13,5 +15,8 @@ double parsePercentage(const std::string_view value);
 
 // Helper function to trim leading and trailing whitespaces away in string
 std::string_view trimView(const std::string_view str);
+
+// Functions to load data into Market object from files; Modify in-place
+void loadRateCurve(Market &market, const std::filesystem::path &filePath);
 
 #endif

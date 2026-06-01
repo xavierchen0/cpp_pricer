@@ -1,7 +1,10 @@
 #include "MarketDataLoader.h"
+#include "Market.h"
 #include <charconv>
 #include <format>
+#include <fstream>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <system_error>
 
@@ -84,4 +87,51 @@ std::string_view trimView(const std::string_view str) {
   const auto last{str.find_last_not_of(whitespace)};
 
   return str.substr(first, last - first + 1);
+}
+
+void loadRateCurve(Market &market, const std::filesystem::path &filePath) {
+  std::ifstream file{filePath};
+  if (!file.is_open()) {
+    throw std::runtime_error(std::format(
+        "Error: Could not open rate curve file: {}", filePath.string()));
+  }
+
+  std::string curveName{};
+  if (!std::getline(file, curveName)) {
+    throw std::runtime_error(
+        std::format("Error: Empty curve file: {}", filePath.string()));
+  }
+
+  curveName = std::string(trimView(curveName));
+  if (curveName.empty()) {
+    throw std::runtime_error(std::format(
+        "Error: Empty curve name after trimming: {}", filePath.string()));
+  }
+
+  RateCurve rc{curveName};
+  std::string line{};
+  while (std::getline(file, line)) {
+    std::string_view lineView{trimView(line)};
+    if (lineView.empty()) {
+      continue;
+    }
+
+    size_t colonPos{lineView.find(":")};
+    if (colonPos == std::string::npos) {
+      continue;
+    }
+
+    std::string_view tenorStr{trimView(lineView.substr(0, colonPos))};
+    std::string_view rateStr{trimView(lineView.substr(colonPos + 1))};
+
+    if (tenorStr.empty() || rateStr.empty()) {
+      continue;
+    }
+
+    Date tenorDate{parseTenor(market.getCurrentDate(), tenorStr)};
+    double rateVal{parsePercentage(rateStr)};
+
+    rc.addRate(tenorDate, rateVal);
+  }
+  market.addMarketData(curveName, rc);
 }
