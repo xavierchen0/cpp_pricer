@@ -8,4 +8,7 @@
 // now parameter
 Date parseTenor(const Date &now, const std::string_view tenor);
 
+// Helper function to parse values with percentage sign
+double parsePercentage(const std::string_view value);
+
 #endif
