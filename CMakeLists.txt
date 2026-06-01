@@ -7,7 +7,10 @@ add_executable(cpp_pricer)
 
 target_sources(cpp_pricer
   PRIVATE
-
+    Date.cpp
+    Market.cpp
+    MarketDataLoader.cpp
+    Main.cpp
 )
 
 target_compile_features(cpp_pricer
