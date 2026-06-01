@@ -116,7 +116,7 @@ void loadRateCurve(Market &market, const std::filesystem::path &filePath) {
       continue;
     }
 
-    size_t colonPos{lineView.find(":")};
+    size_t colonPos{lineView.find(':')};
     if (colonPos == std::string::npos) {
       continue;
     }
