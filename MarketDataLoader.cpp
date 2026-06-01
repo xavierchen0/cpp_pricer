@@ -72,7 +72,7 @@ double parsePercentage(const std::string_view pctValue) {
   return value;
 }
 
-std::string trim(const std::string_view str) {
+std::string_view trimView(const std::string_view str) {
   constexpr std::string_view whitespace{" \t\r\n"};
 
   const auto first{str.find_first_not_of(whitespace)};
@@ -83,5 +83,5 @@ std::string trim(const std::string_view str) {
 
   const auto last{str.find_last_not_of(whitespace)};
 
-  return std::string{str.substr(first, last - first + 1)};
+  return str.substr(first, last - first + 1);
 }
