@@ -2,6 +2,7 @@
 #define BOND_H
 
 #include "Trade.h"
+#include "Types.h"
 #include <ostream>
 #include <string>
 #include <utility>
