@@ -53,6 +53,19 @@ double operator-(const Date &date1, const Date &date2) {
   return (getTotalDays(date1) - getTotalDays(date2)) / 360.0;
 }
 
+Date &Date::operator-=(double year_frac) {
+  double totalDays{year_frac * 360.0};
+  int daysToSubtract{static_cast<int>(std::round(totalDays))};
+  int startDays{getTotalDays(*this)};
+  int endDays{startDays - daysToSubtract};
+
+  m_year = endDays / 360;
+  m_month = (endDays % 360) / 30 + 1;
+  m_day = endDays % 30 + 1;
+
+  return *this;
+}
+
 Date operator+(const Date &date, double year_frac) {
   double totalDays{year_frac * 360.0};
   int daysToAdd{static_cast<int>(std::round(totalDays))};
@@ -64,6 +77,19 @@ Date operator+(const Date &date, double year_frac) {
   int newDay{endDays % 30 + 1};
 
   return Date{newYear, newMonth, newDay};
+}
+
+Date &Date::operator+=(double year_frac) {
+  double totalDays{year_frac * 360.0};
+  int daysToAdd{static_cast<int>(std::round(totalDays))};
+  int startDays{getTotalDays(*this)};
+  int endDays{startDays + daysToAdd};
+
+  m_year = endDays / 360;
+  m_month = (endDays % 360) / 30 + 1;
+  m_day = endDays % 30 + 1;
+
+  return *this;
 }
 
 bool operator==(const Date &date1, const Date &date2) {

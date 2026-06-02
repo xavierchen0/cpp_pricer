@@ -9,9 +9,10 @@
    "Immutability" property of this object. The class only exposes getter
    functions for data retrieval, but only allow modification via operator>>
    when reading dates from external data streams, such as files or user input.
-   This localised mutability eliminates the need for public setter functions,
-   protecting the object from arbitrary modifications elsewhere in the
-   application after its initial creation.
+   Also, allow modification via operator-= and operator+=. This localised
+   mutability eliminates the need for public setter functions, protecting the
+   object from arbitrary modifications elsewhere in the application after its
+   initial creation.
 */
 class Date {
 public:
@@ -24,7 +25,14 @@ public:
   int getMonth() const { return m_month; }
   int getDay() const { return m_day; }
 
+  // Modification via input streaming
   friend std::istream &operator>>(std::istream &is, Date &date);
+
+  // Modification (subtraction) of existing Date object with year_frac
+  Date &operator-=(double year_frac);
+
+  // Modification (addition) of existing Date object with year_frac
+  Date &operator+=(double year_frac);
 
 private:
   int m_year{};
