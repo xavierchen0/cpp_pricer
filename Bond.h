@@ -1,40 +1,46 @@
-#pragma once
+#ifndef BOND_H
+#define BOND_H
+
 #include "Trade.h"
-#include "Market.h"
+#include <ostream>
+#include <string>
+#include <utility>
 
-class Bond : public Trade
-{
-
+class Bond final : public Trade {
 public:
-	Bond(Date start, Date end) : Trade("BondTrade", start) 
-	{	
-	};
+  Bond(std::string name, Date tradeDate, Date startDate, Date endDate,
+       double notional, double couponRate, int frequency)
+      : Trade{TradeType::Bond, std::move(tradeDate)}, m_name{std::move(name)},
+        m_startDate{std::move(startDate)}, m_endDate{std::move(endDate)},
+        m_notional{notional}, m_couponRate{couponRate}, m_frequency{frequency} {
+  }
 
-	Bond(const Date &tradeDate, const std::string& name, const Date &start, const Date &end,
-		 double notional, int couponFreq, double price) : Trade("BondTrade", tradeDate)
-	{
-		startDate = start;
-		endDate = end;
-		bondName = name;
-		bondNotional = notional;
-		frequecy = couponFreq;
-		tradePrice = price;
-	};
+  const std::string &getName() const { return m_name; }
+  const Date &getStartDate() const { return m_startDate; }
+  const Date &getEndDate() const { return m_endDate; }
+  double getNotional() const { return m_notional; }
+  double getCouponRate() const { return m_couponRate; }
+  int getFrequency() const { return m_frequency; }
 
-	inline double Payoff(double marketPrice) const
-	{
-		return 0;
-	}; // implement this
+  double Payoff(double marketPrice) const override {
+    return marketPrice * m_notional;
+  }
 
-	void setFreq(int freq) {
-		frequecy = freq;
-	}
+  std::ostream &print(std::ostream &os) const override {
+    os << "Bond object [TradeType: " << m_tradeType
+       << ", TradeDate: " << m_tradeDate << ", Name: " << m_name
+       << ", Notional: " << m_notional << ", Coupon Rate: " << m_couponRate
+       << ", Frequency: " << m_frequency << "]\n";
+    return os;
+  }
 
 private:
-	std::string bondName;
-	double bondNotional;
-	double tradePrice;
-	int frequecy;
-	Date startDate;
-	Date endDate;
+  std::string m_name{};
+  Date m_startDate{};
+  Date m_endDate{};
+  double m_notional{};
+  double m_couponRate{};
+  int m_frequency{};
 };
+
+#endif
