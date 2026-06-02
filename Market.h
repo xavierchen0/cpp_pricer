@@ -26,7 +26,7 @@ public:
   void display() const;
 
 private:
-  std::string name;
+  std::string name{};
   // std::map is a sorted associative container that stores unique key-value
   // pairs ordered by their keys.
   std::map<Date, double> curveData{};
@@ -53,7 +53,7 @@ public:
   void display() const;
 
 private:
-  std::string name;
+  std::string name{};
   // std::map is a sorted associative container that stores unique key-value
   // pairs ordered by their keys.
   std::map<Date, double> volData{};
