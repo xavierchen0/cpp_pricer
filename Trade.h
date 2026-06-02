@@ -1,20 +1,39 @@
-#pragma once
-#include<string>
-#include "Date.h"
-#include "Market.h"
+#ifndef TRADE_H
+#define TRADE_H
 
+#include "Date.h"
+#include "Types.h"
+#include <ostream>
+#include <utility>
 
 class Trade {
 public:
-	Trade() {};
-	Trade(const std::string& _type, const Date& _tradeDate)
-		: tradeType(_type), tradeDate(_tradeDate) {
-	};
-	inline std::string getType() { return tradeType; };
-	virtual double Payoff(double marketPrice) const = 0; //pure virtual function, need to be implemented by derived class
-	virtual ~Trade() {};
+  virtual ~Trade() = default;
+
+  TradeType getType() const { return m_tradeType; }
+  const Date &getTradeDate() const { return m_tradeDate; }
+
+  virtual double Payoff(double marketPrice) const = 0;
+
+  friend std::ostream &operator<<(std::ostream &os, const Trade &trade) {
+    return trade.print(os);
+  }
+
+  virtual std::ostream &print(std::ostream &os) const {
+    os << "Trade object [TradeType: " << m_tradeType
+       << " , TradeDate: " << m_tradeDate << "]\n";
+    return os;
+  }
 
 protected:
-	std::string tradeType;
-	Date tradeDate;
+  // This is an abstract base class and should not be instantiated directly
+  Trade() = default;
+  Trade(TradeType type, Date date)
+      : m_tradeType{type}, m_tradeDate{std::move(date)} {};
+
+  // Allow derived classes to inherit these member variables
+  TradeType m_tradeType{};
+  Date m_tradeDate{};
 };
+
+#endif
