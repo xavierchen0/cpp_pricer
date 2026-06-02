@@ -2,6 +2,7 @@
 #define TRADE_H
 
 #include "Date.h"
+#include "Market.h"
 #include "Types.h"
 #include <ostream>
 #include <utility>
@@ -13,7 +14,7 @@ public:
   TradeType getType() const { return m_tradeType; }
   const Date &getTradeDate() const { return m_tradeDate; }
 
-  virtual double Payoff(double marketPrice) const = 0;
+  virtual double PV(const Market &market) const = 0;
 
   friend std::ostream &operator<<(std::ostream &os, const Trade &trade) {
     return trade.print(os);
