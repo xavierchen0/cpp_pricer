@@ -36,7 +36,8 @@ protected:
   // fetching the data. In other words, the CPU has to read and look up the
   // memory address (dereference) before it can fetch the object, instead of
   // directly fetching the object.
-  Trade(TradeType type, Date date) : m_tradeType{type}, m_tradeDate{date} {};
+  Trade(TradeType tradeType, Date tradeDate)
+      : m_tradeType{tradeType}, m_tradeDate{tradeDate} {};
 
   // Allow derived classes to inherit these member variables
   TradeType m_tradeType{};
