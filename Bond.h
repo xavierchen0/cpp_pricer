@@ -7,15 +7,22 @@
 #include <cmath>
 #include <ostream>
 #include <string>
-#include <utility>
 
 class Bond final : public Trade {
 public:
+  // Remove std::move because Date object only holds 3 int member variables
+  // which is 12 bytes in most systems, and std::move on primitive types is
+  // equivalent to just copying the data as there is no external heap memory to
+  // transfer ownership of. For a small Date object, const ref is slower for the
+  // CPU because of the additional step to dereference the object first before
+  // fetching the data. In other words, the CPU has to read and look up the
+  // memory address (dereference) before it can fetch the object, instead of
+  // directly fetching the object.
   Bond(std::string name, Date tradeDate, Date startDate, Date endDate,
        double notional, double couponRate, double frequency)
-      : Trade{TradeType::Bond, std::move(tradeDate)}, m_name{std::move(name)},
-        m_startDate{std::move(startDate)}, m_endDate{std::move(endDate)},
-        m_notional{notional}, m_couponRate{couponRate}, m_yearFreq{frequency} {}
+      : Trade{TradeType::Bond, tradeDate}, m_name{name}, m_startDate{startDate},
+        m_endDate{endDate}, m_notional{notional}, m_couponRate{couponRate},
+        m_yearFreq{frequency} {}
 
   const std::string &getName() const { return m_name; }
   const Date &getStartDate() const { return m_startDate; }

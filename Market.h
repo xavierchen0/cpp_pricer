@@ -17,11 +17,14 @@ public:
   // copying to create a temporary object.
   explicit RateCurve(std::string _name) : name{std::move(_name)} {};
 
-  // Use of reference & prevents copying of Date object to initialise the tenor
-  // parameter, thereby saving one copy operation.
-  void addRate(const Date &tenor, double rate);
+  // For a small Date object, const ref is slower for the
+  // CPU because of the additional step to dereference the object first before
+  // fetching the data. In other words, the CPU has to read and look up the
+  // memory address (dereference) before it can fetch the object, instead of
+  // directly fetching the object.
+  void addRate(Date tenor, double rate);
 
-  double getRate(const Date &tenor) const;
+  double getRate(Date tenor) const;
 
   void display() const;
 
@@ -44,11 +47,9 @@ public:
   // copying to create a temporary object.
   explicit VolCurve(std::string _name) : name{std::move(_name)} {};
 
-  // Use of reference & prevents copying of Date object to initialise the tenor
-  // parameter, thereby saving one copy operation.
-  void addVol(const Date &tenor, double vol);
+  void addVol(Date tenor, double vol);
 
-  double getVol(const Date &tenor) const;
+  double getVol(Date tenor) const;
 
   void display() const;
 
@@ -73,10 +74,16 @@ class Market {
 public:
   Market() = default;
 
-  Market(const Date &now) : m_asOf(now) {}
+  Market(Date now) : m_asOf(now) {}
 
   Date getCurrentDate() const { return m_asOf; }
-  void setCurrentDate(const Date &now) { m_asOf = now; }
+
+  // For a small Date object, const ref is slower for the
+  // CPU because of the additional step to dereference the object first before
+  // fetching the data. In other words, the CPU has to read and look up the
+  // memory address (dereference) before it can fetch the object, instead of
+  // directly fetching the object.
+  void setCurrentDate(Date now) { m_asOf = now; }
 
   // Setter to add/overwrite market data in their respective containers
   template <typename T> void addMarketData(std::string name, T data) {
