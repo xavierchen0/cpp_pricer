@@ -10,7 +10,7 @@ class Trade {
 public:
   virtual ~Trade() = default;
 
-  TradeType getType() const { return m_tradeType; }
+  TradeType getTradeType() const { return m_tradeType; }
   Date getTradeDate() const { return m_tradeDate; }
 
   virtual double PV(const Market &market) const = 0;
