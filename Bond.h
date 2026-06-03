@@ -7,6 +7,7 @@
 #include <cmath>
 #include <ostream>
 #include <string>
+#include <utility>
 
 class Bond final : public Trade {
 public:
@@ -20,9 +21,9 @@ public:
   // directly fetching the object.
   Bond(std::string name, Date tradeDate, Date startDate, Date endDate,
        double notional, double couponRate, double frequency)
-      : Trade{TradeType::Bond, tradeDate}, m_name{name}, m_startDate{startDate},
-        m_endDate{endDate}, m_notional{notional}, m_couponRate{couponRate},
-        m_yearFreq{frequency} {}
+      : Trade{TradeType::Bond, tradeDate}, m_name{std::move(name)},
+        m_startDate{startDate}, m_endDate{endDate}, m_notional{notional},
+        m_couponRate{couponRate}, m_yearFreq{frequency} {}
 
   const std::string &getName() const { return m_name; }
   const Date &getStartDate() const { return m_startDate; }
