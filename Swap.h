@@ -7,6 +7,9 @@
 
 class Swap final : public Trade {
 public:
+  // Does not make sense for object to be default initialised
+  Swap() = delete;
+
   // Remove std::move because Date object only holds 3 int member variables
   // which is 12 bytes in most systems, and std::move on primitive types is
   // equivalent to just copying the data as there is no external heap memory to

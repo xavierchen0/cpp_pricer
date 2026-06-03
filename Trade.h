@@ -8,6 +8,9 @@
 
 class Trade {
 public:
+  // Does not make sense for object to be default initialised
+  Trade() = delete;
+
   virtual ~Trade() = default;
 
   TradeType getTradeType() const { return m_tradeType; }
@@ -27,7 +30,7 @@ public:
 
 protected:
   // This is an abstract base class and should not be instantiated directly
-  Trade() = default;
+
   // Remove std::move because Date object only holds 3 int member variables
   // which is 12 bytes in most systems, and std::move on primitive types is
   // equivalent to just copying the data as there is no external heap memory to
