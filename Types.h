@@ -6,6 +6,7 @@
 
 enum class TradeType {
   Bond,
+  Swap,
 };
 
 enum OptionType { Call, Put, BinaryCall, BinaryPut };
@@ -17,6 +18,8 @@ inline std::string_view getTradeTypeName(TradeType tradeType) {
 
   case Bond:
     return "Bond";
+  case Swap:
+    return "Swap";
   default:
     return "???";
   }
