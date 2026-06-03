@@ -24,6 +24,12 @@ public:
         m_endDate{endDate}, m_notional{notional}, m_fixedRate{fixedRate},
         m_yearFreq{frequency} {}
 
+  Date getStartDate() const { return m_startDate; }
+  Date getEndDate() const { return m_endDate; }
+  double getNotional() const { return m_notional; }
+  double getFixedRate() const { return m_fixedRate; }
+  double getFrequency() const { return m_yearFreq; }
+
   double PV(const Market &market) const override {
     const double annuity{getAnnuity(market)};
     // Use maturity date's zero rate as the approximation of the par swap rate
