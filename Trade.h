@@ -39,7 +39,7 @@ protected:
   Trade(TradeType tradeType, Date tradeDate)
       : m_tradeType{tradeType}, m_tradeDate{tradeDate} {};
 
-  // Allow derived classes to inherit these member variables
+private:
   TradeType m_tradeType{};
   Date m_tradeDate{};
 };
