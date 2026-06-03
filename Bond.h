@@ -26,8 +26,8 @@ public:
         m_couponRate{couponRate}, m_yearFreq{frequency} {}
 
   const std::string &getName() const { return m_name; }
-  const Date &getStartDate() const { return m_startDate; }
-  const Date &getEndDate() const { return m_endDate; }
+  Date getStartDate() const { return m_startDate; }
+  Date getEndDate() const { return m_endDate; }
   double getNotional() const { return m_notional; }
   double getCouponRate() const { return m_couponRate; }
   double getFrequency() const { return m_yearFreq; }
