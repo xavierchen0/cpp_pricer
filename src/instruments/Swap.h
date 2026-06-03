@@ -1,9 +1,9 @@
 #ifndef SWAP_H
 #define SWAP_H
 
-#include "Market.h"
-#include "Trade.h"
-#include "Types.h"
+#include "instruments/Trade.h"
+#include "instruments/Types.h"
+#include "market/Market.h"
 
 class Swap final : public Trade {
 public:

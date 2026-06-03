@@ -1,9 +1,10 @@
 #ifndef BOND_H
 #define BOND_H
 
-#include "Market.h"
-#include "Trade.h"
-#include "Types.h"
+#include "core/Date.h"
+#include "instruments/Trade.h"
+#include "instruments/Types.h"
+#include "market/Market.h"
 #include <cmath>
 #include <ostream>
 #include <string>

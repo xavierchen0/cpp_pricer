@@ -1,9 +1,9 @@
 #ifndef TRADE_H
 #define TRADE_H
 
-#include "Date.h"
-#include "Market.h"
-#include "Types.h"
+#include "core/Date.h"
+#include "instruments/Types.h"
+#include "market/Market.h"
 #include <ostream>
 
 class Trade {

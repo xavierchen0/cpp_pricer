@@ -1,9 +1,9 @@
 #ifndef _TREE_PRODUCT_H
 #define _TREE_PRODUCT_H
 
-#include "Date.h"
-#include "Trade.h"
-#include "Types.h"
+#include "core/Date.h"
+#include "instruments/Trade.h"
+#include "instruments/Types.h"
 
 // This class provide a common member function interface for option type of
 // trade.

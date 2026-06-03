@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "Date.h"
-#include "Market.h"
-#include "MarketDataLoader.h"
+#include "core/Date.h"
+#include "market/Market.h"
+#include "market/MarketDataLoader.h"
 
 int main() {
   // task 1, create an market data object, and update the market data from from
@@ -13,10 +13,10 @@ int main() {
 
   try {
     // Load market data
-    loadRateCurve(market, "curve.txt");
-    loadVolCurve(market, "vol.txt", "VolData");
-    loadStockPrices(market, "stockPrice.txt");
-    loadBondPrices(market, "bondPrice.txt");
+    loadRateCurve(market, "data/curve.txt");
+    loadVolCurve(market, "data/vol.txt", "VolData");
+    loadStockPrices(market, "data/stockPrice.txt");
+    loadBondPrices(market, "data/bondPrice.txt");
 
     market.display();
   } catch (const std::exception &e) {

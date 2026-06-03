@@ -7,10 +7,15 @@ add_executable(cpp_pricer)
 
 target_sources(cpp_pricer
   PRIVATE
-    Date.cpp
-    Market.cpp
-    MarketDataLoader.cpp
-    Main.cpp
+    src/core/Date.cpp
+    src/market/Market.cpp
+    src/market/MarketDataLoader.cpp
+    src/Main.cpp
+)
+
+target_include_directories(cpp_pricer
+  PRIVATE
+    src
 )
 
 target_compile_features(cpp_pricer
@@ -26,4 +31,11 @@ target_compile_options(cpp_pricer
     -Wconversion
     -Wsign-conversion
     -Werror
+)
+
+# Copy the data folder to the build directory after every successful build
+add_custom_command(TARGET cpp_pricer POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_CURRENT_SOURCE_DIR}/data
+  ${CMAKE_CURRENT_BINARY_DIR}/data
 )

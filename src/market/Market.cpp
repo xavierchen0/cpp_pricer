@@ -1,16 +1,15 @@
-#include "Market.h"
+#include "market/Market.h"
+#include "core/Date.h"
 #include <iomanip>
 #include <iostream>
-#include <stdexcept>
-#include <utility>
 
-void RateCurve::addRate(const Date &tenor, double rate) {
+void RateCurve::addRate(Date tenor, double rate) {
   // If tenor does not exist in curveData, add to curveData,
   // otherwise, overwrite rate.
   curveData[tenor] = rate / 100.0;
 }
 
-double RateCurve::getRate(const Date &tenor) const {
+double RateCurve::getRate(Date tenor) const {
   // Throw runtime error if rate cuve is empty; Unable to proceed with pricing;
   // Might be due to forgetting to load the market rate curve data.
   if (curveData.empty()) {
@@ -64,13 +63,13 @@ void RateCurve::display() const {
   std::cout << "----------------------------------------\n";
 }
 
-void VolCurve::addVol(const Date &tenor, double vol) {
+void VolCurve::addVol(Date tenor, double vol) {
   // If tenor does not exist in volData, add to volData,
   // otherwise, overwrite rate.
   volData[tenor] = vol / 100.0;
 }
 
-double VolCurve::getVol(const Date &tenor) const {
+double VolCurve::getVol(Date tenor) const {
   // Throw runtime error if vol cuve is empty; Unable to proceed with pricing;
   // Might be due to forgetting to load the market vol curve data.
   if (volData.empty()) {
