@@ -43,6 +43,14 @@ public:
     return annuity * (m_fixedRate - parRate);
   };
 
+  std::ostream &print(std::ostream &os) const override {
+    os << "Bond object [TradeType: " << getTradeType()
+       << ", TradeDate: " << getTradeDate() << ", Notional: " << m_notional
+       << ", FixedRate: " << m_fixedRate << ", Frequency: " << m_yearFreq
+       << "]\n";
+    return os;
+  }
+
 private:
   Date m_startDate{};
   Date m_endDate{};
