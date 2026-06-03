@@ -30,7 +30,7 @@ public:
   double getFixedRate() const { return m_fixedRate; }
   double getFrequency() const { return m_yearFreq; }
 
-  double PV(const Market &market) const override {
+  double payoff(const Market &market) const override {
     const double annuity{getAnnuity(market)};
     // Use maturity date's zero rate as the approximation of the par swap rate
     //

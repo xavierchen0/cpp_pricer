@@ -16,7 +16,7 @@ public:
   TradeType getTradeType() const { return m_tradeType; }
   Date getTradeDate() const { return m_tradeDate; }
 
-  virtual double PV(const Market &market) const = 0;
+  virtual double payoff(const Market &market) const = 0;
 
   friend std::ostream &operator<<(std::ostream &os, const Trade &trade) {
     return trade.print(os);
