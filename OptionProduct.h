@@ -1,20 +1,37 @@
 #ifndef _TREE_PRODUCT_H
 #define _TREE_PRODUCT_H
+
 #include "Date.h"
 #include "Trade.h"
 #include "Types.h"
 
-// this class provide a common member function interface for option type of trade.
-class Option : public Trade
-{
+// This class provide a common member function interface for option type of
+// trade.
+class Option : public Trade {
 public:
-	Option(const Date& tradeDate, OptionType optionType) : Trade("Option", tradeDate) {
-		optType = optionType;
-	};
-	virtual const Date& GetExpiry() const = 0;
-	virtual double ValueAtNode(double stockPrice, double t, double continuationValue) const = 0;
+  // Does not make sense for object to be default initialised
+  Option() = delete;
 
-	OptionType optType;
+  virtual ~Option() = default;
+
+  OptionType getOptionType() const { return m_optType; }
+  const std::string &getUnderlyingName() const { return m_underlyingName; }
+  Date getExpiryDate() const { return m_expiryDate; }
+
+  virtual double valueAtNode(double underlyingPrice, double timeStep,
+                             double continuationValue) const = 0;
+
+protected:
+  // This is an abstract base class and should not be instantiated directly
+  Option(OptionType optionType, std::string underlyingName, Date tradeDate,
+         Date expiryDate)
+      : Trade{TradeType::Option, tradeDate}, m_optType{optionType},
+        m_underlyingName{std::move(underlyingName)}, m_expiryDate{expiryDate} {}
+
+private:
+  OptionType m_optType{};
+  std::string m_underlyingName{};
+  Date m_expiryDate{};
 };
 
 #endif
