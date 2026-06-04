@@ -47,9 +47,9 @@ public:
       using enum OptionRight;
 
     case Call:
-      return underlyingSpotPrice > m_strike ? 1.0 : 0.0;
+      return underlyingSpotPrice >= m_strike ? 1.0 : 0.0;
     case Put:
-      return underlyingSpotPrice < m_strike ? 1.0 : 0.0;
+      return underlyingSpotPrice <= m_strike ? 1.0 : 0.0;
     default:
       throw std::invalid_argument("Error: Unknown OptionRight enumerator");
     }
