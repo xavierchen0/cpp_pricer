@@ -8,9 +8,6 @@
 
 class ITrade {
 public:
-  // Does not make sense for object to be default initialised
-  ITrade() = delete;
-
   virtual ~ITrade() = default;
 
   TradeType getTradeType() const { return m_tradeType; }

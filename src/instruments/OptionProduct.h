@@ -9,9 +9,6 @@
 // trade.
 class IOption : public ITrade {
 public:
-  // Does not make sense for object to be default initialised
-  IOption() = delete;
-
   virtual ~IOption() = default;
 
   OptionRight getOptionRight() const { return m_optionRight; }

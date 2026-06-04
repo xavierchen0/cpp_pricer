@@ -7,17 +7,6 @@
 
 class Swap final : public ITrade {
 public:
-  // Does not make sense for object to be default initialised
-  Swap() = delete;
-
-  // Remove std::move because Date object only holds 3 int member variables
-  // which is 12 bytes in most systems, and std::move on primitive types is
-  // equivalent to just copying the data as there is no external heap memory to
-  // transfer ownership of. For a small Date object, const ref is slower for the
-  // CPU because of the additional step to dereference the object first before
-  // fetching the data. In other words, the CPU has to read and look up the
-  // memory address (dereference) before it can fetch the object, instead of
-  // directly fetching the object.
   Swap(Date tradeDate, Date startDate, Date endDate, double notional,
        double fixedRate, double frequency)
       : ITrade{TradeType::Swap, tradeDate}, m_startDate{startDate},
