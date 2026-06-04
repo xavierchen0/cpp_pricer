@@ -60,4 +60,33 @@ private:
   double m_strike{};
 };
 
+class CallSpreadOptionPayoff final : public IOptionPayoff {
+public:
+  CallSpreadOptionPayoff(double lowerStrike, double higherStrike)
+      : m_lowerStrike{lowerStrike}, m_higherStrike{higherStrike} {
+    if (m_lowerStrike >= m_higherStrike) {
+      throw std::invalid_argument(
+          "Error: Lower strike must be strictly less than higher strike");
+    }
+  }
+
+  double operator()(double underlyingSpotPrice) const override {
+    if (underlyingSpotPrice <= m_lowerStrike) {
+      return 0.0;
+    }
+
+    else if (underlyingSpotPrice >= m_higherStrike) {
+      return m_higherStrike - m_lowerStrike;
+    }
+
+    else {
+      return underlyingSpotPrice - m_lowerStrike;
+    }
+  }
+
+private:
+  double m_lowerStrike{};
+  double m_higherStrike{};
+};
+
 #endif
