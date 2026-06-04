@@ -30,10 +30,8 @@ public:
   double getFixedRate() const { return m_fixedRate; }
   double getFrequency() const { return m_yearFreq; }
 
-  double presentValue() const override {
-    Market &market{Market::getInstance()};
-
-    const double annuity{getAnnuity()};
+  double presentValue(Market &market) const override {
+    const double annuity{getAnnuity(market)};
     // Use maturity date's zero rate as the approximation of the par swap rate
     //
     // Par swap rate is a weighted average of the floating rate and we know from
@@ -60,9 +58,7 @@ private:
   double m_fixedRate{};
   double m_yearFreq{};
 
-  double getAnnuity() const {
-    Market &market{Market::getInstance()};
-
+  double getAnnuity(Market &market) const {
     double annuity{};
     const RateCurve &irCurve{market.getMarketData<RateCurve>("USD-SOFR")};
     Date paymentDate{m_endDate};
