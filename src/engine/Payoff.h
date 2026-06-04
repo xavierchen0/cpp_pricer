@@ -37,4 +37,27 @@ private:
   double m_strike{};
 };
 
+class BinaryOptionPayoff final : public IOptionPayoff {
+public:
+  BinaryOptionPayoff(OptionRight optionRight, double strike)
+      : m_optionRight{optionRight}, m_strike{strike} {}
+
+  double operator()(double underlyingSpotPrice) const override {
+    switch (m_optionRight) {
+      using enum OptionRight;
+
+    case Call:
+      return underlyingSpotPrice > m_strike ? 1.0 : 0.0;
+    case Put:
+      return underlyingSpotPrice < m_strike ? 1.0 : 0.0;
+    default:
+      throw std::invalid_argument("Error: Unknown OptionRight enumerator");
+    }
+  }
+
+private:
+  OptionRight m_optionRight{};
+  double m_strike{};
+};
+
 #endif
