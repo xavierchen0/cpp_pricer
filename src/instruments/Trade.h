@@ -3,7 +3,6 @@
 
 #include "core/Date.h"
 #include "instruments/Types.h"
-#include "market/Market.h"
 #include <ostream>
 
 class Trade {
@@ -16,7 +15,7 @@ public:
   TradeType getTradeType() const { return m_tradeType; }
   Date getTradeDate() const { return m_tradeDate; }
 
-  virtual double payoff(const Market &market) const = 0;
+  virtual double payoff() const = 0;
 
   friend std::ostream &operator<<(std::ostream &os, const Trade &trade) {
     return trade.print(os);

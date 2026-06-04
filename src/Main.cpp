@@ -8,17 +8,16 @@ int main() {
   // task 1, create an market data object, and update the market data from from
   // txt file
   Date valueDate{2023, 12, 31};
-
-  Market market{valueDate};
+  Market::getInstance().setCurrentDate(valueDate);
 
   try {
     // Load market data
-    loadRateCurve(market, "data/curve.txt");
-    loadVolCurve(market, "data/vol.txt", "VolData");
-    loadStockPrices(market, "data/stockPrice.txt");
-    loadBondPrices(market, "data/bondPrice.txt");
+    loadRateCurve("data/curve.txt");
+    loadVolCurve("data/vol.txt", "VolData");
+    loadStockPrices("data/stockPrice.txt");
+    loadBondPrices("data/bondPrice.txt");
 
-    market.display();
+    Market::getInstance().display();
   } catch (const std::exception &e) {
     std::cerr << "Failed to load market data: " << e.what() << '\n';
     return 1;

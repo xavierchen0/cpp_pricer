@@ -1,7 +1,6 @@
 #ifndef MARKET_DATA_LOADER_H
 #define MARKET_DATA_LOADER_H
 
-#include "Market.h"
 #include "core/Date.h"
 #include <filesystem>
 #include <string_view>
@@ -17,10 +16,10 @@ double parsePercentage(const std::string_view value);
 std::string_view trimView(const std::string_view str);
 
 // Functions to load data into Market object from files; Modify in-place
-void loadRateCurve(Market &market, const std::filesystem::path &filePath);
-void loadVolCurve(Market &market, const std::filesystem::path &filePath,
+void loadRateCurve(const std::filesystem::path &filePath);
+void loadVolCurve(const std::filesystem::path &filePath,
                   const std::string &curveName);
-void loadStockPrices(Market &market, const std::filesystem::path &filePath);
-void loadBondPrices(Market &market, const std::filesystem::path &filePath);
+void loadStockPrices(const std::filesystem::path &filePath);
+void loadBondPrices(const std::filesystem::path &filePath);
 
 #endif

@@ -89,7 +89,9 @@ std::string_view trimView(const std::string_view str) {
   return str.substr(first, last - first + 1);
 }
 
-void loadRateCurve(Market &market, const std::filesystem::path &filePath) {
+void loadRateCurve(const std::filesystem::path &filePath) {
+  Market &market{Market::getInstance()};
+
   std::ifstream file{filePath};
   if (!file.is_open()) {
     throw std::runtime_error(std::format(
@@ -136,8 +138,10 @@ void loadRateCurve(Market &market, const std::filesystem::path &filePath) {
   market.addMarketData(curveName, rc);
 }
 
-void loadVolCurve(Market &market, const std::filesystem::path &filePath,
+void loadVolCurve(const std::filesystem::path &filePath,
                   const std::string &curveName) {
+  Market &market{Market::getInstance()};
+
   std::ifstream file{filePath};
   if (!file.is_open()) {
     throw std::runtime_error(std::format(
@@ -172,7 +176,9 @@ void loadVolCurve(Market &market, const std::filesystem::path &filePath,
   market.addMarketData(curveName, vc);
 }
 
-void loadStockPrices(Market &market, const std::filesystem::path &filePath) {
+void loadStockPrices(const std::filesystem::path &filePath) {
+  Market &market{Market::getInstance()};
+
   std::ifstream file{filePath};
   if (!file.is_open()) {
     throw std::runtime_error(std::format(
@@ -210,7 +216,9 @@ void loadStockPrices(Market &market, const std::filesystem::path &filePath) {
   }
 }
 
-void loadBondPrices(Market &market, const std::filesystem::path &filePath) {
+void loadBondPrices(const std::filesystem::path &filePath) {
+  Market &market{Market::getInstance()};
+
   std::ifstream file{filePath};
   if (!file.is_open()) {
     throw std::runtime_error(std::format(

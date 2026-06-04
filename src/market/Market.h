@@ -70,11 +70,19 @@ struct StockPrice {
   operator double() const { return value; }
 };
 
+// Singleton class: only one instance of Market object
 class Market {
 public:
-  Market() = default;
+  // Singleton: static accessor
+  static Market &getInstance();
 
-  Market(Date now) : m_asOf(now) {}
+  // Singleton: prevent cloning/moving
+  Market(const Market &) = delete;
+  Market &operator=(const Market &) = delete;
+  // Being explicit here; Deleting copy constructors implicitly deletes move
+  // constructors
+  Market(Market &&) = delete;
+  Market &operator=(Market &&) = delete;
 
   Date getCurrentDate() const { return m_asOf; }
 
@@ -98,6 +106,9 @@ public:
   void display() const;
 
 private:
+  // Singleton: private constructors
+  Market() = default;
+
   Date m_asOf{};
 
   std::unordered_map<std::string, RateCurve> m_rates{};
