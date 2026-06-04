@@ -6,19 +6,19 @@
 #include "market/Market.h"
 #include <ostream>
 
-class Trade {
+class ITrade {
 public:
   // Does not make sense for object to be default initialised
-  Trade() = delete;
+  ITrade() = delete;
 
-  virtual ~Trade() = default;
+  virtual ~ITrade() = default;
 
   TradeType getTradeType() const { return m_tradeType; }
   Date getTradeDate() const { return m_tradeDate; }
 
   virtual double presentValue(Market &market) const = 0;
 
-  friend std::ostream &operator<<(std::ostream &os, const Trade &trade) {
+  friend std::ostream &operator<<(std::ostream &os, const ITrade &trade) {
     return trade.print(os);
   }
 
@@ -39,7 +39,7 @@ protected:
   // fetching the data. In other words, the CPU has to read and look up the
   // memory address (dereference) before it can fetch the object, instead of
   // directly fetching the object.
-  Trade(TradeType tradeType, Date tradeDate)
+  ITrade(TradeType tradeType, Date tradeDate)
       : m_tradeType{tradeType}, m_tradeDate{tradeDate} {};
 
 private:

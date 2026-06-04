@@ -7,12 +7,12 @@
 
 // This class provide a common member function interface for option type of
 // trade.
-class Option : public Trade {
+class IOption : public ITrade {
 public:
   // Does not make sense for object to be default initialised
-  Option() = delete;
+  IOption() = delete;
 
-  virtual ~Option() = default;
+  virtual ~IOption() = default;
 
   OptionType getOptionType() const { return m_optType; }
   const std::string &getUnderlyingName() const { return m_underlyingName; }
@@ -23,9 +23,9 @@ public:
 
 protected:
   // This is an abstract base class and should not be instantiated directly
-  Option(OptionType optionType, std::string underlyingName, Date tradeDate,
-         Date expiryDate)
-      : Trade{TradeType::Option, tradeDate}, m_optType{optionType},
+  IOption(OptionType optionType, std::string underlyingName, Date tradeDate,
+          Date expiryDate)
+      : ITrade{TradeType::Option, tradeDate}, m_optType{optionType},
         m_underlyingName{std::move(underlyingName)}, m_expiryDate{expiryDate} {}
 
 private:

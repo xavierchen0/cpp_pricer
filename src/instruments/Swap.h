@@ -5,7 +5,7 @@
 #include "instruments/Types.h"
 #include "market/Market.h"
 
-class Swap final : public Trade {
+class Swap final : public ITrade {
 public:
   // Does not make sense for object to be default initialised
   Swap() = delete;
@@ -20,7 +20,7 @@ public:
   // directly fetching the object.
   Swap(Date tradeDate, Date startDate, Date endDate, double notional,
        double fixedRate, double frequency)
-      : Trade{TradeType::Swap, tradeDate}, m_startDate{startDate},
+      : ITrade{TradeType::Swap, tradeDate}, m_startDate{startDate},
         m_endDate{endDate}, m_notional{notional}, m_fixedRate{fixedRate},
         m_yearFreq{frequency} {}
 

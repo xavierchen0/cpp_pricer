@@ -10,7 +10,7 @@
 #include <string>
 #include <utility>
 
-class Bond final : public Trade {
+class Bond final : public ITrade {
 public:
   // Does not make sense for object to be default initialised
   Bond() = delete;
@@ -25,7 +25,7 @@ public:
   // directly fetching the object.
   Bond(std::string name, Date tradeDate, Date startDate, Date endDate,
        double notional, double couponRate, double frequency)
-      : Trade{TradeType::Bond, tradeDate}, m_name{std::move(name)},
+      : ITrade{TradeType::Bond, tradeDate}, m_name{std::move(name)},
         m_startDate{startDate}, m_endDate{endDate}, m_notional{notional},
         m_couponRate{couponRate}, m_yearFreq{frequency} {}
 
