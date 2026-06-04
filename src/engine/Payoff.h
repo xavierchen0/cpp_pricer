@@ -1,34 +1,40 @@
 #ifndef PAYOFF_H
 #define PAYOFF_H
-#include "Types.h"
 
-namespace PAYOFF
-{
-	double VanillaOption(OptionType optType, double strike, double S)
-	{
-		switch (optType)
-		{
-		case Call:
-			return S > strike ? S - strike : 0;
-		case Put:
-			return S < strike ? strike - S : 0;
-		case BinaryCall:
-			return S >= strike ? 1 : 0;
-		case BinaryPut:
-			return S <= strike ? 1 : 0;
-		default:
-			throw "unsupported optionType";
-		}
-	}
+#include "instruments/Types.h"
+#include <algorithm>
+#include <stdexcept>
 
-	double CallSpread(double strike1, double strike2, double S)
-	{
-		if (S < strike1)
-			return 0;
-		else if (S > strike2)
-			return 1;
-		else
-			return (S - strike1) / (strike2 - strike1);
-	}
-}
+// Strategy Design Pattern
+// Abstract Base Class for different Option payoff
+class IOptionPayoff {
+public:
+  virtual ~IOptionPayoff() = default;
+
+  virtual double operator()(double underlyingSpotPrice) const = 0;
+};
+
+class VanillaOptionPayoff final : public IOptionPayoff {
+public:
+  VanillaOptionPayoff(OptionRight optionRight, double strike)
+      : m_optionRight{optionRight}, m_strike{strike} {}
+
+  double operator()(double underlyingSpotPrice) const override {
+    switch (m_optionRight) {
+      using enum OptionRight;
+
+    case Call:
+      return std::max(0.0, underlyingSpotPrice - m_strike);
+    case Put:
+      return std::max(0.0, m_strike - underlyingSpotPrice);
+    default:
+      throw std::invalid_argument("Error: Unknown OptionRight enumerator");
+    }
+  }
+
+private:
+  OptionRight m_optionRight{};
+  double m_strike{};
+};
+
 #endif
