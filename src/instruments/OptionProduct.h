@@ -14,7 +14,7 @@ public:
 
   virtual ~IOption() = default;
 
-  OptionType getOptionType() const { return m_optType; }
+  OptionRight getOptionRight() const { return m_optionRight; }
   const std::string &getUnderlyingName() const { return m_underlyingName; }
   Date getExpiryDate() const { return m_expiryDate; }
 
@@ -23,13 +23,13 @@ public:
 
 protected:
   // This is an abstract base class and should not be instantiated directly
-  IOption(OptionType optionType, std::string underlyingName, Date tradeDate,
+  IOption(OptionRight optionRight, std::string underlyingName, Date tradeDate,
           Date expiryDate)
-      : ITrade{TradeType::Option, tradeDate}, m_optType{optionType},
+      : ITrade{TradeType::Option, tradeDate}, m_optionRight{optionRight},
         m_underlyingName{std::move(underlyingName)}, m_expiryDate{expiryDate} {}
 
 private:
-  OptionType m_optType{};
+  OptionRight m_optionRight{};
   std::string m_underlyingName{};
   Date m_expiryDate{};
 };

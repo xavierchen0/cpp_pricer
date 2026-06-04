@@ -10,11 +10,9 @@ enum class TradeType {
   Option,
 };
 
-enum class OptionType {
+enum class OptionRight {
   Call,
   Put,
-  BinaryCall,
-  BinaryPut,
 };
 
 inline std::string_view getTradeTypeName(TradeType tradeType) {
