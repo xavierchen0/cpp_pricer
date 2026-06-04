@@ -36,7 +36,7 @@ public:
   double getCouponRate() const { return m_couponRate; }
   double getFrequency() const { return m_yearFreq; }
 
-  double payoff() const override {
+  double presentValue() const override {
     Market &market{Market::getInstance()};
     // Calculate the theoretical PV rather than the MTM price
 

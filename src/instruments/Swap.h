@@ -30,7 +30,7 @@ public:
   double getFixedRate() const { return m_fixedRate; }
   double getFrequency() const { return m_yearFreq; }
 
-  double payoff() const override {
+  double presentValue() const override {
     Market &market{Market::getInstance()};
 
     const double annuity{getAnnuity()};
