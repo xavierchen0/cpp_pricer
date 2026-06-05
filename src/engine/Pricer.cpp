@@ -33,16 +33,21 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
   std::vector<double> optionValues(static_cast<size_t>(m_timeSteps + 1));
 
   // Calculate payoff at maturity
+  // Start with bottom node because the loop below starts with bottom node
+  double currentSpot{S0 * std::pow(d, m_timeSteps)};
+  double upDownratio{u * u}; // = u / d = u / 1 / u = u * u
   for (int i{0}; i <= m_timeSteps; ++i) {
     // i represent the number of up moves; (m_timSteps - i) is the number of
     // down moves
-    double spotAtMaturity{S0 * std::pow(u, i) * std::pow(d, m_timeSteps - i)};
-    optionValues[static_cast<size_t>(i)] = option.payoff(spotAtMaturity);
+    optionValues[static_cast<size_t>(i)] = option.payoff(currentSpot);
+    currentSpot *= upDownratio;
   }
 
   // Backward induction
   // Start from one step before the last time step
   for (int step{m_timeSteps - 1}; step >= 0; --step) {
+    double currentSpot{S0 * std::pow(d, step)};
+
     for (int i{0}; i <= step; ++i) {
       double continuationValue{
           discountFactor *
@@ -50,7 +55,6 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
            ((1.0 - p) * optionValues[static_cast<size_t>(i)]))};
 
       if (option.getOptionExerciseStyle() == OptionExerciseStyle::American) {
-        double currentSpot{S0 * std::pow(u, i) * std::pow(d, step - i)};
         double intrinsicValue{option.payoff(currentSpot)};
 
         optionValues[static_cast<size_t>(i)] =
@@ -58,6 +62,8 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
       } else {
         optionValues[static_cast<size_t>(i)] = continuationValue;
       }
+
+      currentSpot *= upDownratio;
     }
   }
 
