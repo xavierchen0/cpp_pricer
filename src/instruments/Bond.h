@@ -20,8 +20,8 @@ public:
   // fetching the data. In other words, the CPU has to read and look up the
   // memory address (dereference) before it can fetch the object, instead of
   // directly fetching the object.
-  Bond(std::string name, Currency tradeCcy, Date tradeDate, Date startDate,
-       Date endDate, double notional, double couponRate, double frequency)
+  Bond(Date tradeDate, Date startDate, Date endDate, Currency tradeCcy,
+       std::string name, double notional, double couponRate, double frequency)
       : ITrade{TradeType::Bond, tradeDate, tradeCcy}, m_name{std::move(name)},
         m_startDate{startDate}, m_endDate{endDate}, m_notional{notional},
         m_couponRate{couponRate}, m_yearFreq{frequency} {}

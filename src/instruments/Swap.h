@@ -7,7 +7,7 @@
 
 class Swap final : public ITrade {
 public:
-  Swap(Currency tradeCcy, Date tradeDate, Date startDate, Date endDate,
+  Swap(Date tradeDate, Date startDate, Date endDate, Currency tradeCcy,
        double notional, double fixedRate, double frequency)
       : ITrade{TradeType::Swap, tradeDate, tradeCcy}, m_startDate{startDate},
         m_endDate{endDate}, m_notional{notional}, m_fixedRate{fixedRate},
@@ -19,7 +19,7 @@ public:
   double getFixedRate() const { return m_fixedRate; }
   double getFrequency() const { return m_yearFreq; }
 
-  double presentValue(Market &market) const override {
+  double presentValue(const Market &market) const override {
     const double annuity{getAnnuity(market)};
     // Use maturity date's zero rate as the approximation of the par swap rate
     //
