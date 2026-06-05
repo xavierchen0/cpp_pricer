@@ -15,6 +15,11 @@ enum class OptionRight {
   Put,
 };
 
+enum class OptionExerciseStyle {
+  European,
+  American,
+};
+
 enum class Currency {
   USD,
 };
@@ -49,6 +54,20 @@ inline std::string_view getName(OptionRight optionRight) {
   }
 }
 
+inline std::string_view getName(OptionExerciseStyle optionExerciseStyle) {
+
+  switch (optionExerciseStyle) {
+    using enum OptionExerciseStyle;
+
+  case European:
+    return "European";
+  case American:
+    return "American";
+  default:
+    return "???";
+  }
+}
+
 inline std::string_view getName(Currency tradeCcy) {
 
   switch (tradeCcy) {
@@ -68,6 +87,12 @@ inline std::ostream &operator<<(std::ostream &os, TradeType tradeType) {
 
 inline std::ostream &operator<<(std::ostream &os, OptionRight optionRight) {
   os << getName(optionRight);
+  return os;
+}
+
+inline std::ostream &operator<<(std::ostream &os,
+                                OptionExerciseStyle optionExerciseStyle) {
+  os << getName(optionExerciseStyle);
   return os;
 }
 
