@@ -1,10 +1,11 @@
 #ifndef _PRICER
 #define _PRICER
 
-#include "instruments/Option.h"
 #include "market/Market.h"
 #include <cstddef>
 #include <stdexcept>
+
+class Option;
 
 // Strategy Design Pattern
 class IOptionPricer {
