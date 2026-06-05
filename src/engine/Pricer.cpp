@@ -1,74 +1,65 @@
 #include "Pricer.h"
+#include "instruments/Option.h"
+#include "instruments/Types.h"
+#include "market/Market.h"
 #include <cmath>
+#include <vector>
 
-double Pricer::Price(const Market &mkt, Trade *trade) {
-  double pv = 0;
-  if (trade->getType() == "Option") {
-    Option *treePtr = dynamic_cast<Option *>(trade);
-    if (treePtr) { // check if cast is sucessful
-      pv = PriceTree(mkt, *treePtr);
-    }
-  } else {
-    double price = 0; // get from market data
-    pv = trade->Payoff(price);
-  }
+double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
+                                              const Option &option) const {
+  // Market Parameters
+  double S0{market.getMarketData<StockPrice>(option.getUnderlyingName())};
+  double vol{market.getMarketData<VolCurve>(option.getUnderlyingName())
+                 .getVol(option.getExpiryDate())};
+  double r{market.getRateCurve(option.getTradeCcy())
+               .getRate(option.getExpiryDate())}; // risk-free rate
 
-  return pv;
-}
+  double T{option.getExpiryDate() - market.getCurrentDate()};
+  double dt{T / m_timeSteps};
 
-void BinomialTreePricer::ModelSetup(double S0, double sigma, double r,
-                                    double dt) {
-  // a basic version of binomial tree
-  u = 1.1;
-  d = 0.9;
-  p = (exp(r) - d) / (u - d);
-  currentSpot = S0;
-}
+  // Bin Tree parameters
+  double u{std::exp(vol * std::sqrt(dt))};
+  double d{1.0 / u};
+  double a{std::exp(r * dt)};
+  double p{(a - d) / (u - d)};
+  double discountFactor{std::exp(-r * dt)};
 
-double BinomialTreePricer::PriceTree(const Market &mkt, const Option &trade) {
-  // model setup
-  double T = trade.GetExpiry() - mkt.asOf;
-  double dt = T / nTimeSteps;
-  double stockPrice = 0, vol = 0, rate = 0;
   /*
-  get these data for the deal from market object
+  Instead of a 2D matrix (stock price vs time), we can just use a 1D vector
+  to hold the previous time step option prices during backward induction. This
+  can help us to save space because once an option value of the previous time
+  step has been used, it won't be used again and can be safely overwritten.
   */
-  ModelSetup(stockPrice, vol, rate, dt);
+  std::vector<double> optionValues(static_cast<size_t>(m_timeSteps + 1));
 
-  // initialize
-  for (int i = 0; i <= nTimeSteps; i++) {
-    states[i] = trade.Payoff(GetSpot(nTimeSteps, i));
+  // Calculate payoff at maturity
+  for (int i{0}; i <= m_timeSteps; ++i) {
+    // i represent the number of up moves; (m_timSteps - i) is the number of
+    // down moves
+    double spotAtMaturity{S0 * std::pow(u, i) * std::pow(d, m_timeSteps - i)};
+    optionValues[static_cast<size_t>(i)] = option.payoff(spotAtMaturity);
   }
 
-  // price by backward induction
-  for (int k = nTimeSteps - 1; k >= 0; k--)
-    for (int i = 0; i <= k; i++) {
-      // calculate continuation value
-      double df = exp(-rate * dt);
-      double continuation =
-          df * (states[i] * GetProbUp() + states[i + 1] * GetProbDown());
-      // calculate the option value at node(k, i)
-      states[i] = trade.ValueAtNode(GetSpot(k, i), dt * k, continuation);
+  // Backward induction
+  // Start from one step before the last time step
+  for (int step{m_timeSteps - 1}; step >= 0; --step) {
+    for (int i{0}; i <= step; ++i) {
+      double continuationValue{
+          discountFactor *
+          (p * optionValues[static_cast<size_t>(i + 1)] +
+           ((1.0 - p) * optionValues[static_cast<size_t>(i)]))};
+
+      if (option.getExerciseStyle() == OptionExerciseStyle::American) {
+        double currentSpot{S0 * std::pow(u, i) * std::pow(d, step - i)};
+        double intrinsicValue{option.payoff(currentSpot)};
+
+        optionValues[static_cast<size_t>(i)] =
+            std::max(continuationValue, intrinsicValue);
+      } else {
+        optionValues[static_cast<size_t>(i)] = continuationValue;
+      }
     }
+  }
 
-  return states[0];
-}
-
-void CRRBinomialTreePricer::ModelSetup(double S0, double sigma, double rate,
-                                       double dt) {
-  // double b = std::exp((2 * rate + sigma * sigma) * dt) + 1;
-  // u = (b + std::sqrt(b * b - 4 * std::exp(2 * rate * dt))) / 2 /
-  // std::exp(rate * dt);
-  u = exp(sigma * dt);
-  d = exp(-sigma * dt);
-  p = (exp(sigma * dt) - d) / (u - d);
-  currentSpot = S0;
-}
-
-void JRRNBinomialTreePricer::ModelSetup(double S0, double sigma, double rate,
-                                        double dt) {
-  u = std::exp((rate - sigma * sigma / 2) * dt + sigma * std::sqrt(dt));
-  d = std::exp((rate - sigma * sigma / 2) * dt - sigma * std::sqrt(dt));
-  p = (std::exp(rate * dt) - d) / (u - d);
-  currentSpot = S0;
+  return optionValues[0];
 }
