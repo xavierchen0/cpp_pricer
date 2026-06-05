@@ -14,7 +14,7 @@ public:
   Date getTradeDate() const { return m_tradeDate; }
   Currency getTradeCcy() const { return m_tradeCcy; }
 
-  virtual double presentValue(Market &market) const = 0;
+  virtual double presentValue(const Market &market) const = 0;
 
   friend std::ostream &operator<<(std::ostream &os, const ITrade &trade) {
     return trade.print(os);
