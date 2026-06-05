@@ -3,7 +3,43 @@
 #include "instruments/Types.h"
 #include "market/Market.h"
 #include <cmath>
+#include <stdexcept>
 #include <vector>
+
+namespace {
+// Standard Normal CDF: N(x)
+double norm_cdf(double x) { return 0.5 * std::erfc(-x / std::sqrt(2.0)); }
+} // namespace
+
+double BlackScholesOptionPricer::calculatePrice(const Market &market,
+                                                const Option &option) const {
+  if (option.getOptionExerciseStyle() == OptionExerciseStyle::American) {
+    throw std::invalid_argument(
+        "Error: Black-Scholes model only suppport Europrean options");
+  }
+
+  double S{market.getMarketData<StockPrice>(option.getUnderlyingName())};
+  double vol{market.getMarketData<VolCurve>(option.getUnderlyingName())
+                 .getVol(option.getExpiryDate())};
+  double r{market.getRateCurve(option.getTradeCcy())
+               .getRate(option.getExpiryDate())};
+  double K{option.getStrike()};
+  double T{option.getExpiryDate() - market.getCurrentDate()};
+
+  if (T <= 0.0) {
+    throw std::invalid_argument("Error: Option has expired");
+  }
+
+  double d1 =
+      (std::log(S / K) + (r + 0.5 * vol * vol) * T) / (vol * std::sqrt(T));
+  double d2 = d1 - vol * std::sqrt(T);
+
+  if (option.getOptionRight() == OptionRight::Call) {
+    return S * norm_cdf(d1) - K * std::exp(-r * T) * norm_cdf(d2);
+  } else {
+    return K * std::exp(-r * T) * norm_cdf(-d2) - S * norm_cdf(-d1);
+  }
+}
 
 double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
                                               const Option &option) const {
@@ -15,6 +51,11 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
                .getRate(option.getExpiryDate())}; // risk-free rate
 
   double T{option.getExpiryDate() - market.getCurrentDate()};
+
+  if (T <= 0.0) {
+    throw std::invalid_argument("Error: Option has expired");
+  }
+
   double dt{T / m_timeSteps};
 
   // Bin Tree parameters
@@ -80,6 +121,11 @@ double JRBinTreeOptionPricer::calculatePrice(const Market &market,
                .getRate(option.getExpiryDate())}; // risk-free rate
 
   double T{option.getExpiryDate() - market.getCurrentDate()};
+
+  if (T <= 0.0) {
+    throw std::invalid_argument("Error: Option has expired");
+  }
+
   double dt{T / m_timeSteps};
 
   // Bin Tree parameters

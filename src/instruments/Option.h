@@ -37,6 +37,7 @@ public:
   }
   const std::string &getUnderlyingName() const { return m_underlyingName; }
   Date getExpiryDate() const { return m_expiryDate; }
+  double getStrike() const { return m_strike; }
 
   double payoff(double underlyingSpotPrice) const {
     return (*m_optionPayoff)(underlyingSpotPrice);

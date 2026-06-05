@@ -16,6 +16,13 @@ public:
                                 const Option &option) const = 0;
 };
 
+class BlackScholesOptionPricer final : public IOptionPricer {
+  BlackScholesOptionPricer() = default;
+
+  double calculatePrice(const Market &market,
+                        const Option &option) const override;
+};
+
 class CRRBinTreeOptionPricer final : public IOptionPricer {
 public:
   CRRBinTreeOptionPricer(int timeSteps) : m_timeSteps{timeSteps} {
