@@ -49,7 +49,7 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
           (p * optionValues[static_cast<size_t>(i + 1)] +
            ((1.0 - p) * optionValues[static_cast<size_t>(i)]))};
 
-      if (option.getExerciseStyle() == OptionExerciseStyle::American) {
+      if (option.getOptionExerciseStyle() == OptionExerciseStyle::American) {
         double currentSpot{S0 * std::pow(u, i) * std::pow(d, step - i)};
         double intrinsicValue{option.payoff(currentSpot)};
 
