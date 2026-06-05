@@ -15,7 +15,11 @@ enum class OptionRight {
   Put,
 };
 
-inline std::string_view getTradeTypeName(TradeType tradeType) {
+enum class Currency {
+  USD,
+};
+
+inline std::string_view getName(TradeType tradeType) {
 
   switch (tradeType) {
     using enum TradeType;
@@ -31,8 +35,25 @@ inline std::string_view getTradeTypeName(TradeType tradeType) {
   }
 }
 
+inline std::string_view getName(Currency tradeCcy) {
+
+  switch (tradeCcy) {
+    using enum Currency;
+
+  case USD:
+    return "USD";
+  default:
+    return "???";
+  }
+}
+
 inline std::ostream &operator<<(std::ostream &os, TradeType tradeType) {
-  os << getTradeTypeName(tradeType);
+  os << getName(tradeType);
+  return os;
+}
+
+inline std::ostream &operator<<(std::ostream &os, Currency tradeCcy) {
+  os << getName(tradeCcy);
   return os;
 }
 

@@ -20,10 +20,11 @@ public:
 
 protected:
   // This is an abstract base class and should not be instantiated directly
-  IOption(OptionRight optionRight, std::string underlyingName, Date tradeDate,
-          Date expiryDate)
-      : ITrade{TradeType::Option, tradeDate}, m_optionRight{optionRight},
-        m_underlyingName{std::move(underlyingName)}, m_expiryDate{expiryDate} {}
+  IOption(OptionRight optionRight, std::string underlyingName,
+          Currency tradeCcy, Date tradeDate, Date expiryDate)
+      : ITrade{TradeType::Option, tradeDate, tradeCcy},
+        m_optionRight{optionRight}, m_underlyingName{std::move(underlyingName)},
+        m_expiryDate{expiryDate} {}
 
 private:
   OptionRight m_optionRight{};

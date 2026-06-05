@@ -7,9 +7,9 @@
 
 class Swap final : public ITrade {
 public:
-  Swap(Date tradeDate, Date startDate, Date endDate, double notional,
-       double fixedRate, double frequency)
-      : ITrade{TradeType::Swap, tradeDate}, m_startDate{startDate},
+  Swap(Currency tradeCcy, Date tradeDate, Date startDate, Date endDate,
+       double notional, double fixedRate, double frequency)
+      : ITrade{TradeType::Swap, tradeDate, tradeCcy}, m_startDate{startDate},
         m_endDate{endDate}, m_notional{notional}, m_fixedRate{fixedRate},
         m_yearFreq{frequency} {}
 
@@ -47,9 +47,9 @@ private:
   double m_fixedRate{};
   double m_yearFreq{};
 
-  double getAnnuity(Market &market) const {
+  double getAnnuity(const Market &market) const {
     double annuity{};
-    const RateCurve &irCurve{market.getMarketData<RateCurve>("USD-SOFR")};
+    const RateCurve &irCurve{market.getRateCurve(getTradeCcy())};
     Date paymentDate{m_endDate};
 
     while (paymentDate > m_startDate) {

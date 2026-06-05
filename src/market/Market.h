@@ -2,6 +2,7 @@
 #define MARKET_H
 
 #include "core/Date.h"
+#include "instruments/Types.h"
 #include <map>
 #include <unordered_map>
 
@@ -85,13 +86,19 @@ public:
   Market &operator=(Market &&) = delete;
 
   Date getCurrentDate() const { return m_asOf; }
-
-  // For a small Date object, const ref is slower for the
-  // CPU because of the additional step to dereference the object first before
-  // fetching the data. In other words, the CPU has to read and look up the
-  // memory address (dereference) before it can fetch the object, instead of
-  // directly fetching the object.
   void setCurrentDate(Date now) { m_asOf = now; }
+
+  const RateCurve &getRateCurve(Currency ccy) const {
+    switch (ccy) {
+      using enum Currency;
+
+    case USD:
+      return getMarketData<RateCurve>("USD-SOFR");
+    default:
+      throw std::invalid_argument(
+          "Error: No rate curve mapped for this currency");
+    }
+  }
 
   // Setter to add/overwrite market data in their respective containers
   template <typename T> void addMarketData(std::string name, T data) {

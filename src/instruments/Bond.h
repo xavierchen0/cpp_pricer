@@ -20,9 +20,9 @@ public:
   // fetching the data. In other words, the CPU has to read and look up the
   // memory address (dereference) before it can fetch the object, instead of
   // directly fetching the object.
-  Bond(std::string name, Date tradeDate, Date startDate, Date endDate,
-       double notional, double couponRate, double frequency)
-      : ITrade{TradeType::Bond, tradeDate}, m_name{std::move(name)},
+  Bond(std::string name, Currency tradeCcy, Date tradeDate, Date startDate,
+       Date endDate, double notional, double couponRate, double frequency)
+      : ITrade{TradeType::Bond, tradeDate, tradeCcy}, m_name{std::move(name)},
         m_startDate{startDate}, m_endDate{endDate}, m_notional{notional},
         m_couponRate{couponRate}, m_yearFreq{frequency} {}
 
@@ -33,7 +33,7 @@ public:
   double getCouponRate() const { return m_couponRate; }
   double getFrequency() const { return m_yearFreq; }
 
-  double presentValue(Market &market) const override {
+  double presentValue(const Market &market) const override {
     // Calculate the theoretical PV rather than the MTM price
 
     // MTM approach
@@ -44,7 +44,7 @@ public:
 
     // Theoretical PV by discounting future cash flows
     double bondPrice{};
-    const RateCurve &irCurve{market.getMarketData<RateCurve>("USD-SOFR")};
+    const RateCurve &irCurve{market.getRateCurve(getTradeCcy())};
     Date paymentDate{m_endDate};
 
     while (paymentDate > m_startDate) {

@@ -12,6 +12,7 @@ public:
 
   TradeType getTradeType() const { return m_tradeType; }
   Date getTradeDate() const { return m_tradeDate; }
+  Currency getTradeCcy() const { return m_tradeCcy; }
 
   virtual double presentValue(Market &market) const = 0;
 
@@ -21,7 +22,8 @@ public:
 
   virtual std::ostream &print(std::ostream &os) const {
     os << "Trade object [TradeType: " << m_tradeType
-       << " , TradeDate: " << m_tradeDate << "]\n";
+       << " , TradeDate: " << m_tradeDate << " , TradeCcy: " << m_tradeCcy
+       << "]\n";
     return os;
   }
 
@@ -36,12 +38,13 @@ protected:
   // fetching the data. In other words, the CPU has to read and look up the
   // memory address (dereference) before it can fetch the object, instead of
   // directly fetching the object.
-  ITrade(TradeType tradeType, Date tradeDate)
-      : m_tradeType{tradeType}, m_tradeDate{tradeDate} {};
+  ITrade(TradeType tradeType, Date tradeDate, Currency tradeCcy)
+      : m_tradeType{tradeType}, m_tradeDate{tradeDate}, m_tradeCcy{tradeCcy} {};
 
 private:
   TradeType m_tradeType{};
   Date m_tradeDate{};
+  Currency m_tradeCcy{};
 };
 
 #endif
