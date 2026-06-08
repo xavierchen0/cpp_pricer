@@ -10,6 +10,7 @@ target_sources(cpp_pricer
     src/core/Date.cpp
     src/market/Market.cpp
     src/market/MarketDataLoader.cpp
+    src/engine/Pricer.cpp
     src/Main.cpp
 )
 
