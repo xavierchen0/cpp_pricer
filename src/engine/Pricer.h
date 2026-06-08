@@ -17,6 +17,7 @@ public:
 };
 
 class BlackScholesOptionPricer final : public IOptionPricer {
+public:
   BlackScholesOptionPricer() = default;
 
   double calculatePrice(const Market &market,
