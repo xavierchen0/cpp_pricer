@@ -8,6 +8,9 @@
 #include <string_view>
 #include <system_error>
 
+namespace {
+// Helper function to convert tenors (e.g. 3M, 6M) to a Date object relative to
+// now parameter
 Date parseTenor(const Date &now, const std::string_view tenor) {
   if (tenor.empty()) {
     throw std::runtime_error("Error: Empty tenor string found.");
@@ -46,6 +49,7 @@ Date parseTenor(const Date &now, const std::string_view tenor) {
   throw std::invalid_argument(std::format("Error: Unknown tenor: {}", tenor));
 }
 
+// Helper function to parse values with percentage sign
 double parsePercentage(const std::string_view pctValue) {
   if (pctValue.empty()) {
     throw std::runtime_error("Error: Empty percentage value found.");
@@ -75,6 +79,7 @@ double parsePercentage(const std::string_view pctValue) {
   return value;
 }
 
+// Helper function to trim leading and trailing whitespaces away in string
 std::string_view trimView(const std::string_view str) {
   constexpr std::string_view whitespace{" \t\r\n"};
 
@@ -88,6 +93,7 @@ std::string_view trimView(const std::string_view str) {
 
   return str.substr(first, last - first + 1);
 }
+} // namespace
 
 void loadRateCurve(const std::filesystem::path &filePath) {
   Market &market{Market::getInstance()};
