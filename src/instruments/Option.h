@@ -18,7 +18,8 @@ public:
          std::string underlyingName, OptionRight optionRight,
          OptionExerciseStyle optionExerciseStyle,
          std::unique_ptr<IOptionPayoff> optionPayoff,
-         std::unique_ptr<IOptionPricer> optionPricer, double strike)
+         std::unique_ptr<IOptionPricer> optionPricer, double notional,
+         double strike)
       : ITrade{TradeType::Option, tradeDate, tradeCcy},
         m_optionRight{optionRight}, m_optionExerciseStyle{optionExerciseStyle},
         m_optionPayoff{std::move(optionPayoff)},

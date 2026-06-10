@@ -48,7 +48,7 @@ public:
           tradeRecord.tradeDate, tradeRecord.endDate, tradeRecord.tradeCcy,
           tradeRecord.name, tradeRecord.optionRight,
           tradeRecord.optionExerciseStyle, std::move(payoff), std::move(pricer),
-          tradeRecord.strike);
+          tradeRecord.notional, tradeRecord.strike);
     } else {
       throw std::invalid_argument(std::format("Error: Invalid Trade Type"));
     }
