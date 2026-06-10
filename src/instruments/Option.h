@@ -40,7 +40,7 @@ public:
   double getStrike() const { return m_strike; }
 
   double payoff(double underlyingSpotPrice) const {
-    return (*m_optionPayoff)(underlyingSpotPrice);
+    return m_optionPayoff->calculatePayoff(underlyingSpotPrice);
   };
 
   double presentValue(const Market &market) const {

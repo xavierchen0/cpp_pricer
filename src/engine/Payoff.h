@@ -11,7 +11,7 @@ class IOptionPayoff {
 public:
   virtual ~IOptionPayoff() = default;
 
-  virtual double operator()(double underlyingSpotPrice) const = 0;
+  virtual double calculatePayoff(double underlyingSpotPrice) const = 0;
 };
 
 class VanillaOptionPayoff final : public IOptionPayoff {
@@ -19,7 +19,7 @@ public:
   VanillaOptionPayoff(OptionRight optionRight, double strike)
       : m_optionRight{optionRight}, m_strike{strike} {}
 
-  double operator()(double underlyingSpotPrice) const override {
+  double calculatePayoff(double underlyingSpotPrice) const override {
     switch (m_optionRight) {
       using enum OptionRight;
 
@@ -42,7 +42,7 @@ public:
   BinaryOptionPayoff(OptionRight optionRight, double strike)
       : m_optionRight{optionRight}, m_strike{strike} {}
 
-  double operator()(double underlyingSpotPrice) const override {
+  double calculatePayoff(double underlyingSpotPrice) const override {
     switch (m_optionRight) {
       using enum OptionRight;
 
@@ -70,7 +70,7 @@ public:
     }
   }
 
-  double operator()(double underlyingSpotPrice) const override {
+  double calculatePayoff(double underlyingSpotPrice) const override {
     if (underlyingSpotPrice <= m_lowerStrike) {
       return 0.0;
     }
