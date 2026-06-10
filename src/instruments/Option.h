@@ -25,7 +25,7 @@ public:
         m_optionPayoff{std::move(optionPayoff)},
         m_optionPricer{std::move(optionPricer)},
         m_underlyingName{std::move(underlyingName)}, m_expiryDate{expiryDate},
-        m_strike{strike} {
+        m_strike{strike}, m_notional{notional} {
     if (m_strike <= 0) {
       throw std::invalid_argument(
           "Error: strike must be strictly more than zero");
@@ -47,8 +47,21 @@ public:
     return m_optionPayoff->calculatePayoff(underlyingSpotPrice);
   };
 
-  double presentValue(const Market &market) const {
+  double presentValue(const Market &market) const override {
     return m_optionPricer->calculatePrice(market, *this);
+  }
+
+  // TODO: Add tradeCcy
+  std::ostream &print(std::ostream &os) const override {
+    os << "Option object [TradeType: " << getTradeType()
+       << ", TradeDate: " << getTradeDate() << ", ExpiryDate: " << m_expiryDate
+       << ", Notional: " << m_notional << ", Strike: " << m_strike
+       << ", UnderlyingName: " << m_underlyingName
+       << ", OptionRight: " << m_optionRight
+       << ", OptionExerciseStyle: " << m_optionExerciseStyle
+       << ", OptionPricer: " << m_optionPricer->print()
+       << ", OptionRight: " << m_optionRight << "]\n";
+    return os;
   }
 
 private:
@@ -59,6 +72,7 @@ private:
   std::string m_underlyingName{};
   Date m_expiryDate{};
   double m_strike{};
+  double m_notional{};
 };
 
 #endif
