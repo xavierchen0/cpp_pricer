@@ -93,7 +93,7 @@ public:
       using enum Currency;
 
     case USD:
-      return getMarketData<RateCurve>("usd-sofr");
+      return getMarketData<RateCurve>("USD-SOFR");
     default:
       throw std::invalid_argument(
           "Error: No rate curve mapped for this currency");
