@@ -4,6 +4,7 @@
 #include "market/Market.h"
 #include <cstddef>
 #include <stdexcept>
+#include <string_view>
 
 class Option;
 
@@ -14,6 +15,8 @@ public:
 
   virtual double calculatePrice(const Market &market,
                                 const Option &option) const = 0;
+
+  virtual std::string_view print() const = 0;
 };
 
 class BlackScholesOptionPricer final : public IOptionPricer {
@@ -22,6 +25,8 @@ public:
 
   double calculatePrice(const Market &market,
                         const Option &option) const override;
+
+  std::string_view print() const override { return "Black-Scholes"; }
 };
 
 class CRRBinTreeOptionPricer final : public IOptionPricer {
@@ -35,6 +40,8 @@ public:
 
   double calculatePrice(const Market &market,
                         const Option &option) const override;
+
+  std::string_view print() const override { return "CRR Binomial Tree"; }
 
 private:
   int m_timeSteps{};
@@ -51,6 +58,8 @@ public:
 
   double calculatePrice(const Market &market,
                         const Option &option) const override;
+
+  std::string_view print() const override { return "JR Binomial Tree"; }
 
 private:
   int m_timeSteps{};
