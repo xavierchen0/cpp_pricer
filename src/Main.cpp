@@ -30,11 +30,16 @@ int main() {
   std::vector<std::unique_ptr<ITrade>> portfolio;
   try {
     portfolio = loadTrades("data/trade.txt");
-    std::cout << "\n--- Task 2: Portfolio Loaded ---\n";
-    std::cout << "Successfully loaded " << portfolio.size() << " trades.\n";
+    std::cout << "\n==================================================\n";
+    std::cout << " PORTFOLIO LOADED\n";
+    std::cout << "==================================================\n";
+    std::cout << " Successfully loaded " << portfolio.size() << " trades.\n";
+    std::cout << "--------------------------------------------------\n";
+    int i = 1;
     for (const auto &trade : portfolio) {
-      std::cout << *trade;
+      std::cout << "  [" << i++ << "] " << *trade;
     }
+    std::cout << "==================================================\n";
   } catch (const std::exception &e) {
     std::cerr << "Failed to load portfolio: " << e.what() << '\n';
     return 1;
