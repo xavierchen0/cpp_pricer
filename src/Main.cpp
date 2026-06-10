@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "core/Date.h"
+#include "market/Loaders.h"
 #include "market/Market.h"
-#include "market/MarketDataLoader.h"
 
 int main() {
   // task 1, create an market data object, and update the market data from from
@@ -27,27 +27,19 @@ int main() {
   // task 2, create a portfolio of bond, swap, european option, american option
   // for each time, at least should have long / short, different tenor or
   // expiry, different underlying totally no less than 16 trades
-  // std::vector<Trade *> myPortfolio;
-  // Date tradeDate = valueDate;
-  // Date startDate = Date(2023, 12, 31);
-  // Date expiryDate = Date(2025, 12, 31);
-  // Trade *swapTrade =
-  //     new Swap(tradeDate, startDate, expiryDate, 1000000, 0.05, 2);
-  // Trade *bondTrade =
-  //     new Bond(tradeDate, "testBond1", startDate, expiryDate, 100000, 0.025,
-  //     1);
-  // Trade *eCallOption =
-  //     new EuropeanOption(tradeDate, 10000, 100, expiryDate,
-  //     OptionType::Call);
-  // Trade *aOption =
-  //     new AmericanOption(tradeDate, 10000, 100, expiryDate,
-  //     OptionType::Call);
-  //
-  // myPortfolio.push_back(swapTrade);
-  // myPortfolio.push_back(bondTrade);
-  // myPortfolio.push_back(eCallOption);
-  // myPortfolio.push_back(aOption);
-  //
+  std::vector<std::unique_ptr<ITrade>> portfolio;
+  try {
+    portfolio = loadTrades("data/trade.txt");
+    std::cout << "\n--- Task 2: Portfolio Loaded ---\n";
+    std::cout << "Successfully loaded " << portfolio.size() << " trades.\n";
+    for (const auto &trade : portfolio) {
+      std::cout << *trade;
+    }
+  } catch (const std::exception &e) {
+    std::cerr << "Failed to load portfolio: " << e.what() << '\n';
+    return 1;
+  }
+
   // // task 3, creat a pricer and price the portfolio, output the pricing
   // result
   // // of each deal.
