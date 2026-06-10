@@ -59,8 +59,7 @@ public:
        << ", UnderlyingName: " << m_underlyingName
        << ", OptionRight: " << m_optionRight
        << ", OptionExerciseStyle: " << m_optionExerciseStyle
-       << ", OptionPricer: " << m_optionPricer->print()
-       << ", OptionRight: " << m_optionRight << "]\n";
+       << ", OptionPricer: " << m_optionPricer->print() << "]\n";
     return os;
   }
 
