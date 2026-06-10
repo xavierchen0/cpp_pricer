@@ -13,11 +13,19 @@ enum class TradeType {
 enum class OptionRight {
   Call,
   Put,
+  NA,
 };
 
 enum class OptionExerciseStyle {
   European,
   American,
+};
+
+enum class OptionPayoff {
+  Vanilla,
+  Binary,
+  CallSpread,
+  NA,
 };
 
 enum class Currency {
@@ -68,6 +76,22 @@ inline std::string_view getName(OptionExerciseStyle optionExerciseStyle) {
   }
 }
 
+inline std::string_view getName(OptionPayoff optionPayoff) {
+
+  switch (optionPayoff) {
+    using enum OptionPayoff;
+
+  case Vanilla:
+    return "Vanilla";
+  case Binary:
+    return "Binary";
+  case CallSpread:
+    return "CallSpread";
+  default:
+    return "???";
+  }
+}
+
 inline std::string_view getName(Currency tradeCcy) {
 
   switch (tradeCcy) {
@@ -93,6 +117,11 @@ inline std::ostream &operator<<(std::ostream &os, OptionRight optionRight) {
 inline std::ostream &operator<<(std::ostream &os,
                                 OptionExerciseStyle optionExerciseStyle) {
   os << getName(optionExerciseStyle);
+  return os;
+}
+
+inline std::ostream &operator<<(std::ostream &os, OptionPayoff optionPayoff) {
+  os << getName(optionPayoff);
   return os;
 }
 
