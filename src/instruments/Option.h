@@ -54,9 +54,9 @@ public:
   // TODO: Add tradeCcy
   std::ostream &print(std::ostream &os) const override {
     os << "Option object [TradeType: " << getTradeType()
-       << ", TradeDate: " << getTradeDate() << ", ExpiryDate: " << m_expiryDate
-       << ", Notional: " << m_notional << ", Strike: " << m_strike
-       << ", UnderlyingName: " << m_underlyingName
+       << ", TradeDate: " << getTradeDate() << ", TradeCcy: " << getTradeCcy()
+       << ", ExpiryDate: " << m_expiryDate << ", Notional: " << m_notional
+       << ", Strike: " << m_strike << ", UnderlyingName: " << m_underlyingName
        << ", OptionRight: " << m_optionRight
        << ", OptionExerciseStyle: " << m_optionExerciseStyle
        << ", OptionPricer: " << m_optionPricer->print() << "]\n";

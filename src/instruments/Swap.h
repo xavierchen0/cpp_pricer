@@ -34,9 +34,9 @@ public:
 
   std::ostream &print(std::ostream &os) const override {
     os << "Swap object [TradeType: " << getTradeType()
-       << ", TradeDate: " << getTradeDate() << ", Notional: " << m_notional
-       << ", FixedRate: " << m_fixedRate << ", Frequency: " << m_yearFreq
-       << "]\n";
+       << ", TradeDate: " << getTradeDate() << ", TradeCcy: " << getTradeCcy()
+       << ", Notional: " << m_notional << ", FixedRate: " << m_fixedRate
+       << ", Frequency: " << m_yearFreq << "]\n";
     return os;
   }
 
