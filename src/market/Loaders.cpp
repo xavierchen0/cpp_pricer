@@ -1,12 +1,18 @@
 #include "market/Loaders.h"
+#include "instruments/Types.h"
 #include "market/Market.h"
+#include "trade/TradeFactory.h"
+#include "trade/TradeRecord.h"
+#include <algorithm>
 #include <charconv>
 #include <format>
 #include <fstream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <vector>
 
 namespace {
 // Helper function to convert tenors (e.g. 3M, 6M) to a Date object relative to
@@ -47,6 +53,23 @@ Date parseTenor(const Date &now, const std::string_view tenor) {
   }
 
   throw std::invalid_argument(std::format("Error: Unknown tenor: {}", tenor));
+}
+
+// Helper function to parse dates
+Date parseDate(const std::string_view dataStr) {
+  if (dataStr.size() != 10 || dataStr[4] != '-' || dataStr[7] != '-') {
+    throw std::invalid_argument(std::format(
+        "Error: Invalid date format. Expected YYYY-MM-DD: {}", dataStr));
+  }
+
+  int year{};
+  int month{};
+  int day{};
+  std::from_chars(dataStr.data(), dataStr.data() + 4, year);
+  std::from_chars(dataStr.data() + 5, dataStr.data() + 7, month);
+  std::from_chars(dataStr.data() + 8, dataStr.data() + 10, day);
+
+  return Date{year, month, day};
 }
 
 // Helper function to parse values with percentage sign
@@ -92,6 +115,23 @@ std::string_view trimView(const std::string_view str) {
   const auto last{str.find_last_not_of(whitespace)};
 
   return str.substr(first, last - first + 1);
+}
+
+// Helper function to parse delimited strings using string_view without making
+// copies
+std::vector<std::string_view> splitView(const std::string_view str,
+                                        char delimiter) {
+  std::vector<std::string_view> values{};
+  size_t start{0};
+  size_t end{str.find(delimiter)};
+
+  while (end != std::string_view::npos) {
+    values.push_back(str.substr(start, end - start));
+    start = end + 1;
+    end = str.find(delimiter, start);
+  }
+  values.push_back(str.substr(start));
+  return values;
 }
 } // namespace
 
@@ -260,4 +300,165 @@ void loadBondPrices(const std::filesystem::path &filePath) {
     }
     market.addMarketData(std::string(bondStr), BondPrice{priceVal});
   }
+}
+
+std::vector<std::unique_ptr<ITrade>>
+loadTrades(const std::filesystem::path &filePath) {
+  std::vector<std::unique_ptr<ITrade>> portfolio{};
+  std::ifstream file{filePath};
+
+  if (!file.is_open()) {
+    throw std::runtime_error(
+        std::format("Error: Could not open trade file: {}", filePath.string()));
+  }
+
+  std::string line{};
+  // Skip the header line and reset file's internal pointer
+  if (std::getline(file, line)) {
+    if (line.find("id;") == std::string::npos) { // not a header line
+      file.clear();                              // clear EOF flag if set
+      file.seekg(0);
+    }
+  }
+
+  while (std::getline(file, line)) {
+    std::string_view lineView{trimView(line)};
+    if (lineView.empty())
+      continue;
+
+    auto values{splitView(lineView, ';')};
+    if (values.size() < 11)
+      continue;
+
+    TradeRecord tradeRecord{};
+
+    // ID
+    std::from_chars_result result{};
+    std::string_view tmpView{trimView(values[0])};
+    result = std::from_chars(tmpView.data(), tmpView.data() + tmpView.size(),
+                             tradeRecord.id);
+    if (result.ec != std::errc{} ||
+        result.ptr != tmpView.data() + tmpView.size()) {
+      throw std::invalid_argument(std::format("Error: Invalid ID"));
+    }
+
+    // Trade type
+    std::string type{std::string(trimView(values[1]))};
+    std::ranges::transform(type, type.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+    if (type == "swap") {
+      tradeRecord.tradeType = TradeType::Swap;
+    } else if (type == "bond") {
+      tradeRecord.tradeType = TradeType::Bond;
+    } else if (type == "european" || type == "american") {
+      tradeRecord.tradeType = TradeType::Option;
+      if (type == "european") {
+        tradeRecord.optionExerciseStyle = OptionExerciseStyle::European;
+      } else {
+        tradeRecord.optionExerciseStyle = OptionExerciseStyle::American;
+      }
+    } else {
+      throw std::invalid_argument(
+          std::format("Error: Invalid Trade Type: {}", type));
+    }
+
+    // Trade date
+    tradeRecord.tradeDate = parseDate(trimView(values[2]));
+
+    // Start date
+    tradeRecord.startDate = parseDate(trimView(values[3]));
+
+    // End date
+    tradeRecord.endDate = parseDate(trimView(values[4]));
+
+    // Notional
+    tmpView = trimView(values[5]);
+    result = std::from_chars(tmpView.data(), tmpView.data() + tmpView.size(),
+                             tradeRecord.notional);
+    if (result.ec != std::errc{} ||
+        result.ptr != tmpView.data() + tmpView.size()) {
+      throw std::invalid_argument(std::format("Error: Invalid Notional"));
+    }
+
+    // Instrument name
+    tradeRecord.name = std::string(trimView(values[6]));
+
+    // Rate
+    tmpView = trimView(values[7]);
+    result = std::from_chars(tmpView.data(), tmpView.data() + tmpView.size(),
+                             tradeRecord.rate);
+    if (result.ec != std::errc{} ||
+        result.ptr != tmpView.data() + tmpView.size()) {
+      throw std::invalid_argument(std::format("Error: Invalid Rate"));
+    }
+
+    // Strike
+    tmpView = trimView(values[8]);
+    result = std::from_chars(tmpView.data(), tmpView.data() + tmpView.size(),
+                             tradeRecord.strike);
+    if (result.ec != std::errc{} ||
+        result.ptr != tmpView.data() + tmpView.size()) {
+      throw std::invalid_argument(std::format("Error: Invalid Strike"));
+    }
+
+    // Frequency
+    tmpView = trimView(values[9]);
+    result = std::from_chars(tmpView.data(), tmpView.data() + tmpView.size(),
+                             tradeRecord.frequency);
+    if (result.ec != std::errc{} ||
+        result.ptr != tmpView.data() + tmpView.size()) {
+      throw std::invalid_argument(std::format("Error: Invalid Frequency"));
+    }
+
+    // Option right
+    std::string optionRight{std::string(trimView(values[10]))};
+    std::ranges::transform(optionRight, optionRight.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+    if (optionRight == "call") {
+      tradeRecord.optionRight = OptionRight::Call;
+    } else if (optionRight == "put") {
+      tradeRecord.optionRight = OptionRight::Put;
+    } else if (optionRight == "na") {
+      tradeRecord.optionRight = OptionRight::NA;
+    } else {
+      throw std::invalid_argument(
+          std::format("Error: Invalid Option Right: {}", optionRight));
+    }
+
+    // Currency
+    std::string ccy{std::string(trimView(values[11]))};
+    std::ranges::transform(ccy, ccy.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+    if (ccy == "usd") {
+      tradeRecord.tradeCcy = Currency::USD;
+    } else {
+      throw std::invalid_argument(
+          std::format("Error: Invalid Currency: {}", ccy));
+    }
+
+    // Option payoff (if option field != na)
+    std::string payoff{std::string(trimView(values[12]))};
+    std::ranges::transform(payoff, payoff.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+    if (payoff == "vanilla") {
+      tradeRecord.optionPayoff = OptionPayoff::Vanilla;
+    } else if (payoff == "binary") {
+      tradeRecord.optionPayoff = OptionPayoff::Binary;
+    } else if (payoff == "callspread") {
+      tradeRecord.optionPayoff = OptionPayoff::CallSpread;
+    } else if (payoff == "na") {
+      tradeRecord.optionPayoff = OptionPayoff::NA;
+    } else {
+      throw std::invalid_argument(
+          std::format("Error: Invalid Option Payoff: {}", payoff));
+    }
+
+    // Instantiate trade object and put into portfolio vector
+    auto trade{TradeFactory::createTrade(tradeRecord)};
+    if (trade) {
+      portfolio.push_back(std::move(trade));
+    }
+  }
+
+  return portfolio;
 }
