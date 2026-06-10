@@ -38,6 +38,9 @@ public:
   const std::string &getUnderlyingName() const { return m_underlyingName; }
   Date getExpiryDate() const { return m_expiryDate; }
   double getStrike() const { return m_strike; }
+  void setPricer(std::unique_ptr<IOptionPricer> newPricer) {
+    m_optionPricer = std::move(newPricer);
+  }
 
   double payoff(double underlyingSpotPrice) const {
     return m_optionPayoff->calculatePayoff(underlyingSpotPrice);
