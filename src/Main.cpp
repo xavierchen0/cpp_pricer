@@ -25,7 +25,6 @@ int main() {
     loadRateCurve("data/sgd_curve.txt", market);
     loadVolCurve("data/vol.txt", "ATM", market);
     loadStockPrices("data/stockPrice.txt", market);
-    // loadBondPrices("data/bondPrice.txt", market);
 
     market.display();
   } catch (const std::exception &e) {
