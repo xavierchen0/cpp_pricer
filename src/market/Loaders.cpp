@@ -379,6 +379,16 @@ loadTrades(const std::filesystem::path &filePath) {
     // Instrument name
     tradeRecord.name = std::string(trimView(values[6]));
 
+    // Deduce Currency from Instrument Name
+    if (tradeRecord.name.find("USD") == 0 || tradeRecord.name == "APPL" ||
+        tradeRecord.name == "SP500") {
+      tradeRecord.tradeCcy = Currency::USD;
+    } else if (tradeRecord.name.find("SGD") == 0 || tradeRecord.name == "STI") {
+      tradeRecord.tradeCcy = Currency::SGD;
+    } else {
+      tradeRecord.tradeCcy = Currency::USD; // Default fallback
+    }
+
     // Rate
     tmpView = trimView(values[7]);
     result = std::from_chars(tmpView.data(), tmpView.data() + tmpView.size(),
@@ -421,34 +431,15 @@ loadTrades(const std::filesystem::path &filePath) {
           std::format("Error: Invalid Option Right: {}", optionRight));
     }
 
-    // Currency
-    std::string ccy{std::string(trimView(values[11]))};
-    std::ranges::transform(ccy, ccy.begin(),
-                           [](unsigned char c) { return std::tolower(c); });
-    if (ccy == "usd") {
-      tradeRecord.tradeCcy = Currency::USD;
-    } else if (ccy == "sgd") {
-      tradeRecord.tradeCcy = Currency::SGD;
-    } else {
-      throw std::invalid_argument(
-          std::format("Error: Invalid Currency: {}", ccy));
-    }
+    // Option payoff (default to Vanilla)
+    tradeRecord.optionPayoff = OptionPayoff::Vanilla;
 
-    // Option payoff (if option field != na)
-    std::string payoff{std::string(trimView(values[12]))};
-    std::ranges::transform(payoff, payoff.begin(),
+    // Direction
+    std::string direction{std::string(trimView(values[11]))};
+    std::ranges::transform(direction, direction.begin(),
                            [](unsigned char c) { return std::tolower(c); });
-    if (payoff == "vanilla") {
-      tradeRecord.optionPayoff = OptionPayoff::Vanilla;
-    } else if (payoff == "binary") {
-      tradeRecord.optionPayoff = OptionPayoff::Binary;
-    } else if (payoff == "callspread") {
-      tradeRecord.optionPayoff = OptionPayoff::CallSpread;
-    } else if (payoff == "na") {
-      tradeRecord.optionPayoff = OptionPayoff::NA;
-    } else {
-      throw std::invalid_argument(
-          std::format("Error: Invalid Option Payoff: {}", payoff));
+    if (direction == "short" || direction == "pay") {
+      tradeRecord.notional = -tradeRecord.notional;
     }
 
     // Instantiate trade object and put into portfolio vector
