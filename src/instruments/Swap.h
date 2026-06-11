@@ -20,17 +20,53 @@ public:
   double getFrequency() const { return m_yearFreq; }
 
   double presentValue(const Market &market) const override {
-    const double annuity{getAnnuity(market)};
-    // Use maturity date's zero rate as the approximation of the par swap rate
-    //
-    // Par swap rate is a weighted average of the floating rate and we know from
-    // no-arbitrage principles, the zero rate is also the average of short-term
-    // interest rates
-    const double parRate{
-        market.getMarketData<RateCurve>("USD-SOFR").getRate(m_endDate)};
+    double pvFixed{0.0};
+    double pvFloat{0.0};
 
-    return annuity * (m_fixedRate - parRate);
-  };
+    const RateCurve &irCurve{market.getRateCurve(getTradeCcy())};
+    Date paymentDate{m_endDate};
+
+    while (paymentDate > m_startDate) {
+      double actualYearFrac{m_yearFreq};
+      Date periodStartDate{paymentDate};
+      periodStartDate -= m_yearFreq;
+
+      // Handle the case of "stub" periods
+      if (periodStartDate < m_startDate) {
+        actualYearFrac = paymentDate - m_startDate;
+        periodStartDate = m_startDate;
+      }
+
+      // T2 is payment date
+      double T2{paymentDate - market.getCurrentDate()};
+      double zeroRate2{irCurve.getRate(paymentDate)};
+      double df2{std::exp(-zeroRate2 * T2)};
+
+      // T1 is period start date
+      double T1{periodStartDate - market.getCurrentDate()};
+      double df1{1.0};
+      if (T1 > 0) {
+        double zeroRate1{irCurve.getRate(periodStartDate)};
+        df1 = std::exp(-zeroRate1 * T1);
+      }
+
+      // Calculate forward rate
+      double fwdRate{(df1 / df2 - 1.0) / actualYearFrac};
+
+      // Fixed cash flow
+      double fixedCashFlow{m_fixedRate * m_notional * actualYearFrac};
+      pvFixed += fixedCashFlow * df2;
+
+      // Floating cash flow
+      double floatCashFlow{fwdRate * m_notional * actualYearFrac};
+      pvFloat += floatCashFlow * df2;
+
+      paymentDate = periodStartDate;
+    }
+
+    // Assuming positive notional means Receive Fixed, Pay Float
+    return pvFixed - pvFloat;
+  }
 
   std::ostream &print(std::ostream &os) const override {
     os << "Swap object [TradeType: " << getTradeType()
@@ -46,28 +82,5 @@ private:
   double m_notional{};
   double m_fixedRate{};
   double m_yearFreq{};
-
-  double getAnnuity(const Market &market) const {
-    double annuity{};
-    const RateCurve &irCurve{market.getRateCurve(getTradeCcy())};
-    Date paymentDate{m_endDate};
-
-    while (paymentDate > m_startDate) {
-      double T{paymentDate - market.getCurrentDate()};
-      double zeroRate{irCurve.getRate(paymentDate)};
-      double discountFactor{std::exp(-zeroRate * T)};
-
-      double actualYearFrac{m_yearFreq};
-      if ((paymentDate - m_startDate) < m_yearFreq) {
-        actualYearFrac = paymentDate - m_startDate;
-      }
-
-      double notionalInPeriod{m_notional * actualYearFrac};
-      annuity += notionalInPeriod * discountFactor;
-
-      paymentDate -= m_yearFreq;
-    }
-    return annuity;
-  }
 };
 #endif
