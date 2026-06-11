@@ -1,17 +1,18 @@
 #include "core/Date.h"
+#include <chrono>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
 
-// Helper function to get date in years
 namespace {
 
-// Assume 30/360 day count convention
 int getTotalDays(const Date &date) {
-  // Handle the case of 31st day and make it 30th day to align with 30/360 day
-  // count convention
-  int day{date.getDay() > 30 ? 30 : date.getDay()};
-  return date.getYear() * 360 + (date.getMonth() - 1) * 30 + (day - 1);
+  std::chrono::year_month_day ymd{
+      std::chrono::year{date.getYear()},
+      std::chrono::month{static_cast<unsigned>(date.getMonth())},
+      std::chrono::day{static_cast<unsigned>(date.getDay())}};
+  std::chrono::sys_days sd = ymd;
+  return sd.time_since_epoch().count();
 }
 
 } // namespace
@@ -30,8 +31,6 @@ std::istream &operator>>(std::istream &is, Date &date) {
     }
   }
 
-  // Copy assign referenced Date object if input extraction successful;
-  // otherwise, copy assigns a default-initialised Date as fallback
   date = is ? Date{year, month, day} : Date{};
 
   return is;
@@ -48,46 +47,55 @@ std::ostream &operator<<(std::ostream &os, const Date &d) {
   return os;
 }
 
-// return date difference in fraction of year
 double operator-(const Date &date1, const Date &date2) {
-  return (getTotalDays(date1) - getTotalDays(date2)) / 360.0;
+  return (getTotalDays(date1) - getTotalDays(date2)) / 365.0;
 }
 
 Date &Date::operator-=(double year_frac) {
-  double totalDays{year_frac * 360.0};
-  int daysToSubtract{static_cast<int>(std::round(totalDays))};
-  int startDays{getTotalDays(*this)};
-  int endDays{startDays - daysToSubtract};
+  int daysToSubtract{static_cast<int>(std::round(year_frac * 365.0))};
+  std::chrono::year_month_day ymd{
+      std::chrono::year{m_year},
+      std::chrono::month{static_cast<unsigned>(m_month)},
+      std::chrono::day{static_cast<unsigned>(m_day)}};
+  std::chrono::sys_days sd =
+      std::chrono::sys_days(ymd) - std::chrono::days(daysToSubtract);
+  std::chrono::year_month_day new_ymd{sd};
 
-  m_year = endDays / 360;
-  m_month = (endDays % 360) / 30 + 1;
-  m_day = endDays % 30 + 1;
+  m_year = static_cast<int>(new_ymd.year());
+  m_month = static_cast<int>(static_cast<unsigned>(new_ymd.month()));
+  m_day = static_cast<int>(static_cast<unsigned>(new_ymd.day()));
 
   return *this;
 }
 
 Date operator+(const Date &date, double year_frac) {
-  double totalDays{year_frac * 360.0};
-  int daysToAdd{static_cast<int>(std::round(totalDays))};
-  int startDays{getTotalDays(date)};
-  int endDays{startDays + daysToAdd};
+  int daysToAdd{static_cast<int>(std::round(year_frac * 365.0))};
+  std::chrono::year_month_day ymd{
+      std::chrono::year{date.getYear()},
+      std::chrono::month{static_cast<unsigned>(date.getMonth())},
+      std::chrono::day{static_cast<unsigned>(date.getDay())}};
+  std::chrono::sys_days sd =
+      std::chrono::sys_days(ymd) + std::chrono::days(daysToAdd);
+  std::chrono::year_month_day new_ymd{sd};
 
-  int newYear{endDays / 360};
-  int newMonth{(endDays % 360) / 30 + 1};
-  int newDay{endDays % 30 + 1};
-
-  return Date{newYear, newMonth, newDay};
+  return Date{static_cast<int>(new_ymd.year()),
+              static_cast<int>(static_cast<unsigned>(new_ymd.month())),
+              static_cast<int>(static_cast<unsigned>(new_ymd.day()))};
 }
 
 Date &Date::operator+=(double year_frac) {
-  double totalDays{year_frac * 360.0};
-  int daysToAdd{static_cast<int>(std::round(totalDays))};
-  int startDays{getTotalDays(*this)};
-  int endDays{startDays + daysToAdd};
+  int daysToAdd{static_cast<int>(std::round(year_frac * 365.0))};
+  std::chrono::year_month_day ymd{
+      std::chrono::year{m_year},
+      std::chrono::month{static_cast<unsigned>(m_month)},
+      std::chrono::day{static_cast<unsigned>(m_day)}};
+  std::chrono::sys_days sd =
+      std::chrono::sys_days(ymd) + std::chrono::days(daysToAdd);
+  std::chrono::year_month_day new_ymd{sd};
 
-  m_year = endDays / 360;
-  m_month = (endDays % 360) / 30 + 1;
-  m_day = endDays % 30 + 1;
+  m_year = static_cast<int>(new_ymd.year());
+  m_month = static_cast<int>(static_cast<unsigned>(new_ymd.month()));
+  m_day = static_cast<int>(static_cast<unsigned>(new_ymd.day()));
 
   return *this;
 }
