@@ -45,7 +45,7 @@ int main() {
     std::cout << "--------------------------------------------------\n";
     int i{1};
     for (const auto &trade : portfolio) {
-      std::cout << "  [" << i++ << "] " << *trade;
+      std::cout << "  [" << i++ << "] " << *trade << '\n';
     }
     std::cout << "==================================================\n";
   } catch (const std::exception &e) {
