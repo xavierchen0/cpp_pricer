@@ -1,4 +1,5 @@
 #include <array>
+#include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -123,21 +124,48 @@ int main() {
             << totalPV << "\n";
   std::cout << "==================================================\n\n";
 
-  // Task 5: Risk Engine
+  // Task 5: Risk Engine & Performance Benchmarking
   std::cout << "==================================================\n";
-  std::cout << " RISK ENGINE: \n";
+  std::cout << " RISK ENGINE & PERFORMANCE BENCHMARKING \n";
   std::cout << "==================================================\n";
 
   // Set the default pricer for options so the risk engine uses it consistently
   for (const auto &trade : portfolio) {
     if (trade->getTradeType() == TradeType::Option) {
       auto *optionTrade{static_cast<Option *>(trade.get())};
-      optionTrade->setPricer(pricers[1]);
+      optionTrade->setPricer(pricers[1]); // CRR Tree
     }
   }
 
-  std::vector<RiskResult> riskResults{
+  std::cout << " Running Multi-threaded Risk Engine...\n";
+  auto startMulti{std::chrono::high_resolution_clock::now()};
+  std::vector<RiskResult> riskResultsMulti{
       RiskEngine::computeRisk(portfolio, market, true)};
+  auto endMulti{std::chrono::high_resolution_clock::now()};
+  std::chrono::duration<double, std::milli> msDoubleMulti{endMulti -
+                                                          startMulti};
+
+  std::cout << " Running Single-threaded Risk Engine...\n";
+  auto startSingle{std::chrono::high_resolution_clock::now()};
+  std::vector<RiskResult> riskResultsSingle{
+      RiskEngine::computeRisk(portfolio, market, false)};
+  auto endSingle{std::chrono::high_resolution_clock::now()};
+  std::chrono::duration<double, std::milli> msDoubleSingle{endSingle -
+                                                           startSingle};
+
+  std::cout << "\n [Performance Analysis]\n";
+  std::cout << "   - Multi-threaded time:  " << std::fixed
+            << std::setprecision(2) << msDoubleMulti.count() << " ms\n";
+  std::cout << "   - Single-threaded time: " << std::fixed
+            << std::setprecision(2) << msDoubleSingle.count() << " ms\n";
+  if (msDoubleMulti.count() > 0) {
+    std::cout << "   -> Speedup Factor:      " << std::fixed
+              << std::setprecision(2)
+              << msDoubleSingle.count() / msDoubleMulti.count() << "x\n\n";
+  }
+
+  // Use Multi-threaded results for output
+  std::vector<RiskResult> &riskResults{riskResultsMulti};
 
   double totalDelta{0.0};
   double totalVega{0.0};
