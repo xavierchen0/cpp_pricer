@@ -42,12 +42,12 @@ public:
       }
 
       // Make default pricer to be the Black-Scholes pricer
-      auto pricer{std::make_unique<BlackScholesOptionPricer>()};
+      auto pricer{std::make_shared<BlackScholesOptionPricer>()};
 
       return std::make_unique<Option>(
           tradeRecord.tradeDate, tradeRecord.endDate, tradeRecord.tradeCcy,
           tradeRecord.name, tradeRecord.optionRight,
-          tradeRecord.optionExerciseStyle, std::move(payoff), std::move(pricer),
+          tradeRecord.optionExerciseStyle, std::move(payoff), pricer,
           tradeRecord.notional, tradeRecord.strike);
     } else {
       throw std::invalid_argument(std::format("Error: Invalid Trade Type"));
