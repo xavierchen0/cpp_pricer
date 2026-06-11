@@ -20,7 +20,7 @@ double BlackScholesOptionPricer::calculatePrice(const Market &market,
 
   double S{market.getMarketData<StockPrice>(option.getUnderlyingName())};
   double vol{
-      market.getMarketData<VolCurve>("TMP").getVol(option.getExpiryDate())};
+      market.getMarketData<VolCurve>("ATM").getVol(option.getExpiryDate())};
   double r{market.getRateCurve(option.getTradeCcy())
                .getRate(option.getExpiryDate())};
   double K{option.getStrike()};
@@ -45,8 +45,8 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
                                               const Option &option) const {
   // Market Parameters
   double S0{market.getMarketData<StockPrice>(option.getUnderlyingName())};
-  double vol{market.getMarketData<VolCurve>(option.getUnderlyingName())
-                 .getVol(option.getExpiryDate())};
+  double vol{
+      market.getMarketData<VolCurve>("ATM").getVol(option.getExpiryDate())};
   double r{market.getRateCurve(option.getTradeCcy())
                .getRate(option.getExpiryDate())}; // risk-free rate
 
@@ -115,8 +115,8 @@ double JRBinTreeOptionPricer::calculatePrice(const Market &market,
                                              const Option &option) const {
   // Market Parameters
   double S0{market.getMarketData<StockPrice>(option.getUnderlyingName())};
-  double vol{market.getMarketData<VolCurve>(option.getUnderlyingName())
-                 .getVol(option.getExpiryDate())};
+  double vol{
+      market.getMarketData<VolCurve>("ATM").getVol(option.getExpiryDate())};
   double r{market.getRateCurve(option.getTradeCcy())
                .getRate(option.getExpiryDate())}; // risk-free rate
 

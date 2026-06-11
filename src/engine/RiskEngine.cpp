@@ -36,11 +36,11 @@ RiskResult compute(const ITrade *trade, const Market &baseMarket) {
     double volBump{0.01}; // 1% == 0.01
 
     Market marketVolUp{baseMarket};
-    marketVolUp.bumpVolCurve(optionTrade->getUnderlyingName(), volBump);
+    marketVolUp.bumpVolCurve("ATM", volBump);
     double pvVolUp{optionTrade->presentValue(marketVolUp)};
 
     Market marketVolDown{baseMarket};
-    marketVolDown.bumpVolCurve(optionTrade->getUnderlyingName(), -volBump);
+    marketVolDown.bumpVolCurve("ATM", -volBump);
     double pvVolDown{optionTrade->presentValue(marketVolDown)};
 
     result.vega = (pvVolUp - pvVolDown) / (2.0 * volBump);
