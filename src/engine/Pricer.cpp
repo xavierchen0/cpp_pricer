@@ -43,14 +43,13 @@ double BlackScholesOptionPricer::calculatePrice(const Market &market,
 
 double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
                                               const Option &option) const {
-  // Market Parameters
   double S0{market.getMarketData<StockPrice>(option.getUnderlyingName())};
   double vol{
       market.getMarketData<VolCurve>("ATM").getVol(option.getExpiryDate())};
-  double r{market.getRateCurve(option.getTradeCcy())
-               .getRate(option.getExpiryDate())}; // risk-free rate
+  const RateCurve &rateCurve{market.getRateCurve(option.getTradeCcy())};
+  Date asOf{market.getCurrentDate()};
 
-  double T{option.getExpiryDate() - market.getCurrentDate()};
+  double T{option.getExpiryDate() - asOf};
 
   if (T <= 0.0) {
     throw std::invalid_argument("Error: Option has expired");
@@ -58,53 +57,53 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
 
   double dt{T / m_timeSteps};
 
-  // Bin Tree parameters
   double u{std::exp(vol * std::sqrt(dt))};
   double d{1.0 / u};
-  double a{std::exp(r * dt)};
-  double p{(a - d) / (u - d)};
-  double discountFactor{std::exp(-r * dt)};
 
-  /*
-  Instead of a 2D matrix (stock price vs time), we can just use a 1D vector
-  to hold the previous time step option prices during backward induction. This
-  can help us to save space because once an option value of the previous time
-  step has been used, it won't be used again and can be safely overwritten.
-  */
   std::vector<double> optionValues(static_cast<size_t>(m_timeSteps + 1));
 
-  // Calculate payoff at maturity
-  // Start with bottom node because the loop below starts with bottom node
-  double currentSpot{S0 * std::pow(d, m_timeSteps)};
-  double upDownratio{u * u}; // = u / d = u / 1 / u = u * u
+  // Initialise array of discount factors from time step t_i to current date to
+  // use as we iterate backwards
+  std::vector<double> dfs(static_cast<size_t>(m_timeSteps + 1));
   for (int i{0}; i <= m_timeSteps; ++i) {
-    // i represent the number of up moves; (m_timSteps - i) is the number of
-    // down moves
+    Date t_i{asOf + (i * dt)};
+    dfs[static_cast<size_t>(i)] = rateCurve.getDf(asOf, t_i);
+  }
+
+  // Find option prices at maturity across all paths
+  double currentSpot{S0 * std::pow(d, m_timeSteps)};
+  double upDownratio{u * u};
+  for (int i{0}; i <= m_timeSteps; ++i) {
     optionValues[static_cast<size_t>(i)] = option.payoff(currentSpot);
     currentSpot *= upDownratio;
   }
 
-  // Backward induction
-  // Start from one step before the last time step
+  // Backwards induction
   for (int step{m_timeSteps - 1}; step >= 0; --step) {
-    double currentSpot{S0 * std::pow(d, step)};
+    // DF(t1, t2) = DF(t2) / DF(t1); t1 < t2
+    double fwdDiscountFactor =
+        dfs[static_cast<size_t>(step + 1)] / dfs[static_cast<size_t>(step)];
+
+    double a = 1.0 / fwdDiscountFactor; // equivalent to e^(r * dt)
+    double p = (a - d) / (u - d);
+
+    double currentSpot_step{S0 * std::pow(d, step)};
 
     for (int i{0}; i <= step; ++i) {
       double continuationValue{
-          discountFactor *
+          fwdDiscountFactor *
           (p * optionValues[static_cast<size_t>(i + 1)] +
            ((1.0 - p) * optionValues[static_cast<size_t>(i)]))};
 
       if (option.getOptionExerciseStyle() == OptionExerciseStyle::American) {
-        double intrinsicValue{option.payoff(currentSpot)};
-
+        double intrinsicValue{option.payoff(currentSpot_step)};
         optionValues[static_cast<size_t>(i)] =
             std::max(continuationValue, intrinsicValue);
       } else {
         optionValues[static_cast<size_t>(i)] = continuationValue;
       }
 
-      currentSpot *= upDownratio;
+      currentSpot_step *= upDownratio;
     }
   }
 
@@ -113,14 +112,13 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
 
 double JRBinTreeOptionPricer::calculatePrice(const Market &market,
                                              const Option &option) const {
-  // Market Parameters
   double S0{market.getMarketData<StockPrice>(option.getUnderlyingName())};
   double vol{
       market.getMarketData<VolCurve>("ATM").getVol(option.getExpiryDate())};
-  double r{market.getRateCurve(option.getTradeCcy())
-               .getRate(option.getExpiryDate())}; // risk-free rate
+  const RateCurve &rateCurve{market.getRateCurve(option.getTradeCcy())};
+  Date asOf{market.getCurrentDate()};
 
-  double T{option.getExpiryDate() - market.getCurrentDate()};
+  double T{option.getExpiryDate() - asOf};
 
   if (T <= 0.0) {
     throw std::invalid_argument("Error: Option has expired");
@@ -128,35 +126,32 @@ double JRBinTreeOptionPricer::calculatePrice(const Market &market,
 
   double dt{T / m_timeSteps};
 
-  // Bin Tree parameters
-  double u{std::exp((r - 0.5 * vol * vol) * dt + vol * std::sqrt(dt))};
-  double d{std::exp((r - 0.5 * vol * vol) * dt - vol * std::sqrt(dt))};
-  double p{0.5};
-  double discountFactor{std::exp(-r * dt)};
-
-  /*
-  Instead of a 2D matrix (stock price vs time), we can just use a 1D vector
-  to hold the previous time step option prices during backward induction. This
-  can help us to save space because once an option value of the previous time
-  step has been used, it won't be used again and can be safely overwritten.
-  */
   std::vector<double> optionValues(static_cast<size_t>(m_timeSteps + 1));
 
-  // Calculate payoff at maturity
-  // Start with bottom node because the loop below starts with bottom node
-  double currentSpot{S0 * std::pow(d, m_timeSteps)};
-  double upDownratio{u / d};
+  // Initialise array of discount factors from time step t_i to current date to
+  // use as we iterate backwards
+  std::vector<double> dfs(static_cast<size_t>(m_timeSteps + 1));
   for (int i{0}; i <= m_timeSteps; ++i) {
-    // i represent the number of up moves; (m_timSteps - i) is the number of
-    // down moves
-    optionValues[static_cast<size_t>(i)] = option.payoff(currentSpot);
-    currentSpot *= upDownratio;
+    Date t_i{asOf + (i * dt)};
+    dfs[static_cast<size_t>(i)] = rateCurve.getDf(asOf, t_i);
   }
 
-  // Backward induction
-  // Start from one step before the last time step
+  auto getSpot{[&](int step, int i) {
+    double fwdPrice = S0 / dfs[static_cast<size_t>(step)];
+    return fwdPrice * std::exp(-0.5 * vol * vol * step * dt +
+                               (2.0 * i - step) * vol * std::sqrt(dt));
+  }};
+
+  for (int i{0}; i <= m_timeSteps; ++i) {
+    optionValues[static_cast<size_t>(i)] =
+        option.payoff(getSpot(m_timeSteps, i));
+  }
+
+  double p{0.5};
+
   for (int step{m_timeSteps - 1}; step >= 0; --step) {
-    double currentSpot{S0 * std::pow(d, step)};
+    double discountFactor =
+        dfs[static_cast<size_t>(step + 1)] / dfs[static_cast<size_t>(step)];
 
     for (int i{0}; i <= step; ++i) {
       double continuationValue{
@@ -165,15 +160,12 @@ double JRBinTreeOptionPricer::calculatePrice(const Market &market,
            ((1.0 - p) * optionValues[static_cast<size_t>(i)]))};
 
       if (option.getOptionExerciseStyle() == OptionExerciseStyle::American) {
-        double intrinsicValue{option.payoff(currentSpot)};
-
+        double intrinsicValue{option.payoff(getSpot(step, i))};
         optionValues[static_cast<size_t>(i)] =
             std::max(continuationValue, intrinsicValue);
       } else {
         optionValues[static_cast<size_t>(i)] = continuationValue;
       }
-
-      currentSpot *= upDownratio;
     }
   }
 

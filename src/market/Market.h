@@ -17,6 +17,12 @@ public:
 
   double getRate(Date tenor) const;
 
+  double getDf(Date asOf, Date tenor) const {
+      double t_years = tenor - asOf;
+      if (t_years <= 0.0) return 1.0;
+      return std::exp(-getRate(tenor) * t_years);
+  }
+
   void bump(double bumpValue) {
     for (auto &[date, rate] : curveData) {
       rate += bumpValue;
