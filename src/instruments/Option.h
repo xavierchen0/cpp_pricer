@@ -51,7 +51,6 @@ public:
     return m_optionPricer->calculatePrice(market, *this);
   }
 
-  // TODO: Add tradeCcy
   std::ostream &print(std::ostream &os) const override {
     os << "Option object [TradeType: " << getTradeType()
        << ", TradeDate: " << getTradeDate() << ", TradeCcy: " << getTradeCcy()
