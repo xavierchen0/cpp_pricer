@@ -1,4 +1,7 @@
+#include <iomanip>
 #include <iostream>
+#include <memory>
+#include <vector>
 
 #include "core/Date.h"
 #include "market/Loaders.h"
@@ -35,7 +38,7 @@ int main() {
     std::cout << "==================================================\n";
     std::cout << " Successfully loaded " << portfolio.size() << " trades.\n";
     std::cout << "--------------------------------------------------\n";
-    int i = 1;
+    int i{1};
     for (const auto &trade : portfolio) {
       std::cout << "  [" << i++ << "] " << *trade;
     }
@@ -45,14 +48,33 @@ int main() {
     return 1;
   }
 
-  // // task 3, creat a pricer and price the portfolio, output the pricing
-  // result
-  // // of each deal.
-  // auto pricer = CRRBinomialTreePricer(20);
-  // for (auto &trade : myPortfolio) {
-  //   double pv = pricer.Price(*mkt, trade);
-  //   // log pv details out in a file
-  // }
+  // task 3, create a pricer and price the portfolio, output the pricing result
+  // of each deal.
+  std::cout << "\n==================================================\n";
+  std::cout << " PRICING PORTFOLIO\n";
+  std::cout << "==================================================\n";
+  std::cout << " Note: Options use Black-Scholes Pricer by default\n";
+  std::cout << "--------------------------------------------------\n";
+
+  double totalPV{0.0};
+  int j{1};
+  for (const auto &trade : portfolio) {
+    std::cout << "  [" << j++ << "] " << *trade;
+    try {
+      double pv{trade->presentValue(market)};
+      std::cout << "      => PV: " << std::fixed << std::setprecision(2) << pv
+                << "\n\n";
+      totalPV += pv;
+    } catch (const std::exception &e) {
+      std::cout << "      => Error: " << e.what() << "\n\n";
+    }
+  }
+
+  std::cout << "--------------------------------------------------\n";
+  std::cout << " TOTAL PORTFOLIO PV: " << std::fixed << std::setprecision(2)
+            << totalPV << "\n";
+  std::cout << "==================================================\n";
+
   //
   // // task 4, analyzing pricing result
   // //  a) compare CRR binomial tree result for an european option vs Black
