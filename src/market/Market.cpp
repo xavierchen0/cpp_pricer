@@ -154,3 +154,20 @@ void Market::display() const {
 
   std::cout << "\n==================================================\n";
 }
+
+void Market::bumpRateCurve(Currency ccy, double bumpValue) {
+  switch (ccy) {
+    using enum Currency;
+
+  case USD:
+    getMap<RateCurve>().at("USD-SOFR").bump(bumpValue);
+    break;
+  default:
+    throw std::invalid_argument(
+        "Error: No rate curve mapped for this currency");
+  }
+}
+
+void Market::bumpVolCurve(const std::string &name, double bumpValue) {
+  getMap<VolCurve>().at(name).bump(bumpValue);
+}

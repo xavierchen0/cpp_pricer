@@ -4,6 +4,7 @@
 #include "core/Date.h"
 #include "instruments/Types.h"
 #include <map>
+#include <stdexcept>
 #include <unordered_map>
 
 class RateCurve {
@@ -16,6 +17,12 @@ public:
 
   double getRate(Date tenor) const;
 
+  void bump(double bumpValue) {
+    for (auto &[date, rate] : curveData) {
+      rate += bumpValue;
+    }
+  }
+
   void display() const;
 
 private:
@@ -27,24 +34,22 @@ class VolCurve {
 public:
   VolCurve() = default;
 
-  // Use of 'explicit' keyword to prevent implicit conversions, thus leading to
-  // unwanted bugs.
-  //
-  // Use of std::move to convert the parameter _name from an lvalue to rvalue to
-  // invoke std::string's move constructor, thereby eliminating unnecessary
-  // copying to create a temporary object.
   explicit VolCurve(std::string _name) : name{std::move(_name)} {};
 
   void addVol(Date tenor, double vol);
 
   double getVol(Date tenor) const;
 
+  void bump(double bumpValue) {
+    for (auto &[date, vol] : volData) {
+      vol += bumpValue;
+    }
+  }
+
   void display() const;
 
 private:
   std::string name{};
-  // std::map is a sorted associative container that stores unique key-value
-  // pairs ordered by their keys.
   std::map<Date, double> volData{};
 };
 
@@ -76,6 +81,9 @@ public:
           "Error: No rate curve mapped for this currency");
     }
   }
+
+  void bumpRateCurve(Currency ccy, double bumpValue);
+  void bumpVolCurve(const std::string &name, double bumpValue);
 
   // Setter to add/overwrite market data in their respective containers
   template <typename T> void addMarketData(std::string name, T data) {
