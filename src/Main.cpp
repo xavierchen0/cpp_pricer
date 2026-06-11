@@ -6,6 +6,7 @@
 
 #include "core/Date.h"
 #include "engine/Pricer.h"
+#include "engine/RiskEngine.h"
 #include "instruments/Option.h"
 #include "market/Loaders.h"
 #include "market/Market.h"
@@ -19,10 +20,10 @@ int main() {
 
   try {
     // Load market data
-    loadRateCurve("data/curve.txt", market);
+    loadRateCurve("data/usd_curve.txt", market);
     loadVolCurve("data/vol.txt", "TMP", market);
     loadStockPrices("data/stockPrice.txt", market);
-    loadBondPrices("data/bondPrice.txt", market);
+    // loadBondPrices("data/bondPrice.txt", market);
 
     market.display();
   } catch (const std::exception &e) {
@@ -121,5 +122,45 @@ int main() {
   std::cout << " TOTAL PORTFOLIO PV: " << std::fixed << std::setprecision(2)
             << totalPV << "\n";
   std::cout << "==================================================\n\n";
+
+  // Task 5: Risk Engine
+  std::cout << "==================================================\n";
+  std::cout << " RISK ENGINE: \n";
+  std::cout << "==================================================\n";
+
+  // Set the default pricer for options so the risk engine uses it consistently
+  for (const auto &trade : portfolio) {
+    if (trade->getTradeType() == TradeType::Option) {
+      auto *optionTrade{static_cast<Option *>(trade.get())};
+      optionTrade->setPricer(pricers[1]);
+    }
+  }
+
+  std::vector<RiskResult> riskResults{
+      RiskEngine::computeRisk(portfolio, market, true)};
+
+  double totalDelta{0.0};
+  double totalVega{0.0};
+
+  for (size_t k{0}; k < portfolio.size(); ++k) {
+    std::cout << "  [" << k + 1 << "] " << *portfolio[k];
+    std::cout << "      => PV:    " << std::fixed << std::setprecision(2)
+              << std::setw(10) << riskResults[k].pv << "\n";
+    std::cout << "      => Delta: " << std::fixed << std::setprecision(2)
+              << std::setw(10) << riskResults[k].delta << "\n";
+    std::cout << "      => Vega:  " << std::fixed << std::setprecision(2)
+              << std::setw(10) << riskResults[k].vega << "\n\n";
+
+    totalDelta += riskResults[k].delta;
+    totalVega += riskResults[k].vega;
+  }
+
+  std::cout << "--------------------------------------------------\n";
+  std::cout << " TOTAL PORTFOLIO DELTA: " << std::fixed << std::setprecision(2)
+            << totalDelta << "\n";
+  std::cout << " TOTAL PORTFOLIO VEGA:  " << std::fixed << std::setprecision(2)
+            << totalVega << "\n";
+  std::cout << "==================================================\n\n";
+
   return 0;
 }
