@@ -123,11 +123,6 @@ void VolCurve::display() const {
   std::cout << "----------------------------------------\n";
 }
 
-Market &Market::getInstance() {
-  static Market instance{};
-  return instance;
-}
-
 void Market::display() const {
   std::cout << "\n==================================================\n";
   std::cout << " MARKET DATA  [Valuation Date: " << m_asOf << "]\n";

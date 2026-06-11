@@ -10,19 +10,8 @@ class RateCurve {
 public:
   RateCurve() = default;
 
-  // Use of 'explicit' keyword to prevent implicit conversions, thus leading to
-  // unwanted bugs.
-  //
-  // Use of std::move to convert the parameter _name from an lvalue to rvalue to
-  // invoke std::string's move constructor, thereby eliminating unnecessary
-  // copying to create a temporary object.
   explicit RateCurve(std::string _name) : name{std::move(_name)} {};
 
-  // For a small Date object, const ref is slower for the
-  // CPU because of the additional step to dereference the object first before
-  // fetching the data. In other words, the CPU has to read and look up the
-  // memory address (dereference) before it can fetch the object, instead of
-  // directly fetching the object.
   void addRate(Date tenor, double rate);
 
   double getRate(Date tenor) const;
@@ -31,8 +20,6 @@ public:
 
 private:
   std::string name{};
-  // std::map is a sorted associative container that stores unique key-value
-  // pairs ordered by their keys.
   std::map<Date, double> curveData{};
 };
 
@@ -71,19 +58,9 @@ struct StockPrice {
   operator double() const { return value; }
 };
 
-// Singleton class: only one instance of Market object
 class Market {
 public:
-  // Singleton: static accessor
-  static Market &getInstance();
-
-  // Singleton: prevent cloning/moving
-  Market(const Market &) = delete;
-  Market &operator=(const Market &) = delete;
-  // Being explicit here; Deleting copy constructors implicitly deletes move
-  // constructors
-  Market(Market &&) = delete;
-  Market &operator=(Market &&) = delete;
+  Market() = default;
 
   Date getCurrentDate() const { return m_asOf; }
   void setCurrentDate(Date now) { m_asOf = now; }
@@ -113,9 +90,6 @@ public:
   void display() const;
 
 private:
-  // Singleton: private constructors
-  Market() = default;
-
   Date m_asOf{};
 
   std::unordered_map<std::string, RateCurve> m_rates{};

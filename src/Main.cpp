@@ -14,15 +14,15 @@ int main() {
   // task 1, create an market data object, and update the market data from from
   // txt file
   Date valueDate{2023, 12, 31};
-  Market &market{Market::getInstance()};
+  Market market{};
   market.setCurrentDate(valueDate);
 
   try {
     // Load market data
-    loadRateCurve("data/curve.txt");
-    loadVolCurve("data/vol.txt", "TMP");
-    loadStockPrices("data/stockPrice.txt");
-    loadBondPrices("data/bondPrice.txt");
+    loadRateCurve("data/curve.txt", market);
+    loadVolCurve("data/vol.txt", "TMP", market);
+    loadStockPrices("data/stockPrice.txt", market);
+    loadBondPrices("data/bondPrice.txt", market);
 
     market.display();
   } catch (const std::exception &e) {

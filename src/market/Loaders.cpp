@@ -135,8 +135,7 @@ std::vector<std::string_view> splitView(const std::string_view str,
 }
 } // namespace
 
-void loadRateCurve(const std::filesystem::path &filePath) {
-  Market &market{Market::getInstance()};
+void loadRateCurve(const std::filesystem::path &filePath, Market &market) {
 
   std::ifstream file{filePath};
   if (!file.is_open()) {
@@ -185,8 +184,7 @@ void loadRateCurve(const std::filesystem::path &filePath) {
 }
 
 void loadVolCurve(const std::filesystem::path &filePath,
-                  const std::string &curveName) {
-  Market &market{Market::getInstance()};
+                  const std::string &curveName, Market &market) {
 
   std::ifstream file{filePath};
   if (!file.is_open()) {
@@ -222,8 +220,7 @@ void loadVolCurve(const std::filesystem::path &filePath,
   market.addMarketData(curveName, vc);
 }
 
-void loadStockPrices(const std::filesystem::path &filePath) {
-  Market &market{Market::getInstance()};
+void loadStockPrices(const std::filesystem::path &filePath, Market &market) {
 
   std::ifstream file{filePath};
   if (!file.is_open()) {
@@ -262,8 +259,7 @@ void loadStockPrices(const std::filesystem::path &filePath) {
   }
 }
 
-void loadBondPrices(const std::filesystem::path &filePath) {
-  Market &market{Market::getInstance()};
+void loadBondPrices(const std::filesystem::path &filePath, Market &market) {
 
   std::ifstream file{filePath};
   if (!file.is_open()) {
