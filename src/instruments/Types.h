@@ -30,6 +30,7 @@ enum class OptionPayoff {
 
 enum class Currency {
   USD,
+  SGD,
 };
 
 inline std::string_view getName(TradeType tradeType) {
@@ -99,6 +100,8 @@ inline std::string_view getName(Currency tradeCcy) {
 
   case USD:
     return "USD";
+  case SGD:
+    return "SGD";
   default:
     return "???";
   }

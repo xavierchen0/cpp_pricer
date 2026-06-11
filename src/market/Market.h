@@ -76,6 +76,8 @@ public:
 
     case USD:
       return getMarketData<RateCurve>("USD-SOFR");
+    case SGD:
+      return getMarketData<RateCurve>("SGD-SORA");
     default:
       throw std::invalid_argument(
           "Error: No rate curve mapped for this currency");

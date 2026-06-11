@@ -162,6 +162,9 @@ void Market::bumpRateCurve(Currency ccy, double bumpValue) {
   case USD:
     getMap<RateCurve>().at("USD-SOFR").bump(bumpValue);
     break;
+  case SGD:
+    getMap<RateCurve>().at("SGD-SORA").bump(bumpValue);
+    break;
   default:
     throw std::invalid_argument(
         "Error: No rate curve mapped for this currency");

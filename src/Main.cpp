@@ -22,6 +22,7 @@ int main() {
   try {
     // Load market data
     loadRateCurve("data/usd_curve.txt", market);
+    loadRateCurve("data/sgd_curve.txt", market);
     loadVolCurve("data/vol.txt", "TMP", market);
     loadStockPrices("data/stockPrice.txt", market);
     // loadBondPrices("data/bondPrice.txt", market);

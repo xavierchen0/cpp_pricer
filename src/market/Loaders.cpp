@@ -427,6 +427,8 @@ loadTrades(const std::filesystem::path &filePath) {
                            [](unsigned char c) { return std::tolower(c); });
     if (ccy == "usd") {
       tradeRecord.tradeCcy = Currency::USD;
+    } else if (ccy == "sgd") {
+      tradeRecord.tradeCcy = Currency::SGD;
     } else {
       throw std::invalid_argument(
           std::format("Error: Invalid Currency: {}", ccy));
