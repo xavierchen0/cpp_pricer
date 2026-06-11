@@ -19,8 +19,8 @@ double BlackScholesOptionPricer::calculatePrice(const Market &market,
   }
 
   double S{market.getMarketData<StockPrice>(option.getUnderlyingName())};
-  double vol{market.getMarketData<VolCurve>(option.getUnderlyingName())
-                 .getVol(option.getExpiryDate())};
+  double vol{
+      market.getMarketData<VolCurve>("TMP").getVol(option.getExpiryDate())};
   double r{market.getRateCurve(option.getTradeCcy())
                .getRate(option.getExpiryDate())};
   double K{option.getStrike()};
