@@ -136,12 +136,14 @@ double JRBinTreeOptionPricer::calculatePrice(const Market &market,
     dfs[static_cast<size_t>(i)] = rateCurve.getDf(asOf, t_i);
   }
 
+  // Lambda to find spot price at node
   auto getSpot{[&](int step, int i) {
-    double fwdPrice = S0 / dfs[static_cast<size_t>(step)];
+    double fwdPrice{S0 / dfs[static_cast<size_t>(step)]};
     return fwdPrice * std::exp(-0.5 * vol * vol * step * dt +
                                (2.0 * i - step) * vol * std::sqrt(dt));
   }};
 
+  // Find option prices at maturity across all paths
   for (int i{0}; i <= m_timeSteps; ++i) {
     optionValues[static_cast<size_t>(i)] =
         option.payoff(getSpot(m_timeSteps, i));
@@ -149,6 +151,7 @@ double JRBinTreeOptionPricer::calculatePrice(const Market &market,
 
   double p{0.5};
 
+  // Backward induction
   for (int step{m_timeSteps - 1}; step >= 0; --step) {
     double discountFactor =
         dfs[static_cast<size_t>(step + 1)] / dfs[static_cast<size_t>(step)];
