@@ -11,6 +11,7 @@ target_sources(cpp_pricer
     src/market/Market.cpp
     src/market/Loaders.cpp
     src/engine/Pricer.cpp
+    src/engine/RiskEngine.cpp
     src/Main.cpp
 )
 
