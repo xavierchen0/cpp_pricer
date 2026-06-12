@@ -44,8 +44,7 @@ double BlackScholesOptionPricer::calculatePrice(const Market &market,
 double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
                                               const Option &option) const {
   double S0{market.getMarketData<StockPrice>(option.getUnderlyingName())};
-  double vol{
-      market.getMarketData<VolCurve>("ATM").getVol(option.getExpiryDate())};
+  const VolCurve &volCurve{market.getMarketData<VolCurve>("ATM")};
   const RateCurve &rateCurve{market.getRateCurve(option.getTradeCcy())};
   Date asOf{market.getCurrentDate()};
 
@@ -57,39 +56,55 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
 
   double dt{T / m_timeSteps};
 
-  double u{std::exp(vol * std::sqrt(dt))};
-  double d{1.0 / u};
-
   std::vector<double> optionValues(static_cast<size_t>(m_timeSteps + 1));
 
-  // Initialise array of discount factors from time step t_i to current date to
-  // use as we iterate backwards
+  // Pre-calculate interpolated discount factors and variances for each time
+  // step
   std::vector<double> dfs(static_cast<size_t>(m_timeSteps + 1));
+  std::vector<double> vars(static_cast<size_t>(m_timeSteps + 1));
+
   for (int i{0}; i <= m_timeSteps; ++i) {
     Date t_i{asOf + (i * dt)};
     dfs[static_cast<size_t>(i)] = rateCurve.getDf(asOf, t_i);
+
+    double vol_i{volCurve.getVol(t_i)};
+    vars[static_cast<size_t>(i)] =
+        // Total accumulated variance; Variance is additive
+        vol_i * vol_i * (i * dt);
   }
 
-  // Find option prices at maturity across all paths
-  double currentSpot{S0 * std::pow(d, m_timeSteps)};
-  double upDownratio{u * u};
+  // Lambda to get the exact spot price at any node
+  auto getSpot = [&](int step, int i) {
+    if (step == 0)
+      return S0;
+    double jump{std::sqrt(vars[static_cast<size_t>(step)] / step)};
+    return S0 * std::exp((2.0 * i - step) * jump);
+  };
+
+  // Get option value at maturity
   for (int i{0}; i <= m_timeSteps; ++i) {
-    optionValues[static_cast<size_t>(i)] = option.payoff(currentSpot);
-    currentSpot *= upDownratio;
+    optionValues[static_cast<size_t>(i)] =
+        option.payoff(getSpot(m_timeSteps, i));
   }
 
-  // Backwards induction
+  // Backward induction
   for (int step{m_timeSteps - 1}; step >= 0; --step) {
-    // DF(t1, t2) = DF(t2) / DF(t1); t1 < t2
+    // DF(t1, t2) = DF(t2) / DF(t1)
     double fwdDiscountFactor =
         dfs[static_cast<size_t>(step + 1)] / dfs[static_cast<size_t>(step)];
 
-    double a = 1.0 / fwdDiscountFactor; // equivalent to e^(r * dt)
-    double p = (a - d) / (u - d);
-
-    double currentSpot_step{S0 * std::pow(d, step)};
-
     for (int i{0}; i <= step; ++i) {
+      double currentSpot_step = getSpot(step, i);
+
+      // Node-specific risk-neutral probability to match the forward rate
+      double spot_up = getSpot(step + 1, i + 1);
+      double spot_down = getSpot(step + 1, i);
+      double a = currentSpot_step / fwdDiscountFactor;
+      double p = (a - spot_down) / (spot_up - spot_down);
+
+      // Ensure probability stay within [0.0, 1.0]
+      p = std::max(0.0, std::min(1.0, p));
+
       double continuationValue{
           fwdDiscountFactor *
           (p * optionValues[static_cast<size_t>(i + 1)] +
@@ -102,8 +117,6 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
       } else {
         optionValues[static_cast<size_t>(i)] = continuationValue;
       }
-
-      currentSpot_step *= upDownratio;
     }
   }
 
@@ -113,8 +126,7 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
 double JRBinTreeOptionPricer::calculatePrice(const Market &market,
                                              const Option &option) const {
   double S0{market.getMarketData<StockPrice>(option.getUnderlyingName())};
-  double vol{
-      market.getMarketData<VolCurve>("ATM").getVol(option.getExpiryDate())};
+  const VolCurve &volCurve{market.getMarketData<VolCurve>("ATM")};
   const RateCurve &rateCurve{market.getRateCurve(option.getTradeCcy())};
   Date asOf{market.getCurrentDate()};
 
@@ -128,22 +140,34 @@ double JRBinTreeOptionPricer::calculatePrice(const Market &market,
 
   std::vector<double> optionValues(static_cast<size_t>(m_timeSteps + 1));
 
-  // Initialise array of discount factors from time step t_i to current date to
-  // use as we iterate backwards
   std::vector<double> dfs(static_cast<size_t>(m_timeSteps + 1));
+  std::vector<double> vars(static_cast<size_t>(m_timeSteps + 1));
+
+  // Pre-calculate interpolated discount factors and variances for each time
+  // step
   for (int i{0}; i <= m_timeSteps; ++i) {
     Date t_i{asOf + (i * dt)};
     dfs[static_cast<size_t>(i)] = rateCurve.getDf(asOf, t_i);
+
+    double vol_i{volCurve.getVol(t_i)};
+    // Total accumulated variance; Variance is additive
+    vars[static_cast<size_t>(i)] = vol_i * vol_i * (i * dt);
   }
 
-  // Lambda to find spot price at node
-  auto getSpot{[&](int step, int i) {
-    double fwdPrice{S0 / dfs[static_cast<size_t>(step)]};
-    return fwdPrice * std::exp(-0.5 * vol * vol * step * dt +
-                               (2.0 * i - step) * vol * std::sqrt(dt));
-  }};
+  // JR requires p=0.5, so the spot price absorbs both the forward rate and
+  // exact forward variance
+  // Lambda to get the exact spot price at any node
+  auto getSpot = [&](int step, int i) {
+    if (step == 0)
+      return S0;
+    double V_t = vars[static_cast<size_t>(step)];
+    double fwdPrice = S0 / dfs[static_cast<size_t>(step)];
 
-  // Find option prices at maturity across all paths
+    double jump = std::sqrt(V_t / step);
+    return fwdPrice * std::exp(-0.5 * V_t + (2.0 * i - step) * jump);
+  };
+
+  // Get option value at maturity
   for (int i{0}; i <= m_timeSteps; ++i) {
     optionValues[static_cast<size_t>(i)] =
         option.payoff(getSpot(m_timeSteps, i));
