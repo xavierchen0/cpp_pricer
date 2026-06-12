@@ -45,9 +45,8 @@ else()
   )
 endif()
 
-# Copy the data folder to the build directory after every successful build
 add_custom_command(TARGET cpp_pricer POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_CURRENT_SOURCE_DIR}/data
-  ${CMAKE_CURRENT_BINARY_DIR}/data
+  $<TARGET_FILE_DIR:cpp_pricer>/data
 )

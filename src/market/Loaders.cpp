@@ -340,8 +340,9 @@ loadTrades(const std::filesystem::path &filePath) {
 
     // Trade type
     std::string type{std::string(trimView(values[1]))};
-    std::ranges::transform(type, type.begin(),
-                           [](unsigned char c) { return std::tolower(c); });
+    std::ranges::transform(type, type.begin(), [](unsigned char c) {
+      return static_cast<char>(std::tolower(c));
+    });
     if (type == "swap") {
       tradeRecord.tradeType = TradeType::Swap;
     } else if (type == "bond") {
@@ -418,8 +419,9 @@ loadTrades(const std::filesystem::path &filePath) {
 
     // Option right
     std::string optionRight{std::string(trimView(values[10]))};
-    std::ranges::transform(optionRight, optionRight.begin(),
-                           [](unsigned char c) { return std::tolower(c); });
+    std::ranges::transform(
+        optionRight, optionRight.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     if (optionRight == "call") {
       tradeRecord.optionRight = OptionRight::Call;
     } else if (optionRight == "put") {
@@ -436,8 +438,9 @@ loadTrades(const std::filesystem::path &filePath) {
 
     // Direction
     std::string direction{std::string(trimView(values[11]))};
-    std::ranges::transform(direction, direction.begin(),
-                           [](unsigned char c) { return std::tolower(c); });
+    std::ranges::transform(direction, direction.begin(), [](unsigned char c) {
+      return static_cast<char>(std::tolower(c));
+    });
     if (direction == "short" || direction == "pay") {
       tradeRecord.notional = -tradeRecord.notional;
     }
