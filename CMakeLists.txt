@@ -25,15 +25,25 @@ target_compile_features(cpp_pricer
     cxx_std_23
 )
 
-target_compile_options(cpp_pricer
-  PRIVATE
-    -Wall
-    -Weffc++
-    -Wextra
-    -Wconversion
-    -Wsign-conversion
-    -Werror
-)
+# Conditional compiler flags based on the compiler being used
+if(MSVC)
+  target_compile_options(cpp_pricer
+    PRIVATE
+      /W4     # High warning level (similar to -Wall -Wextra)
+      /WX     # Treat warnings as errors (equivalent to -Werror)
+  )
+else()
+  # For Clang and GCC
+  target_compile_options(cpp_pricer
+    PRIVATE
+      -Wall
+      -Weffc++
+      -Wextra
+      -Wconversion
+      -Wsign-conversion
+      -Werror
+  )
+endif()
 
 # Copy the data folder to the build directory after every successful build
 add_custom_command(TARGET cpp_pricer POST_BUILD
