@@ -1,5 +1,6 @@
 #include <array>
 #include <chrono>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -189,6 +190,49 @@ int main() {
   std::cout << " TOTAL PORTFOLIO VEGA:  " << std::fixed << std::setprecision(2)
             << totalVega << "\n";
   std::cout << "==================================================\n\n";
+
+  // Task 6: Write output to results.txt
+  try {
+    std::ofstream outFile("results.txt");
+    if (!outFile.is_open()) {
+      throw std::runtime_error("Error: Could not open results.txt for writing");
+    }
+
+    outFile << "==================================================\n";
+    outFile << " RISK ENGINE RESULTS\n";
+    outFile << "==================================================\n";
+    for (size_t k{0}; k < portfolio.size(); ++k) {
+      outFile << "  [" << k + 1 << "] Trade Type: ";
+      if (portfolio[k]->getTradeType() == TradeType::Bond) {
+        outFile << "Bond | Ccy: " << portfolio[k]->getTradeCcy() << '\n';
+      } else if (portfolio[k]->getTradeType() == TradeType::Swap) {
+        outFile << "Swap | Ccy: " << portfolio[k]->getTradeCcy() << '\n';
+      } else {
+        auto *opt = static_cast<Option *>(portfolio[k].get());
+        outFile << "Option | Ccy: " << portfolio[k]->getTradeCcy()
+                << " | Pricer: " << opt->getPricerName() << '\n';
+      }
+
+      outFile << "      => PV:    " << std::fixed << std::setprecision(2)
+              << std::setw(10) << riskResults[k].pv << "\n";
+      outFile << "      => Delta: " << std::fixed << std::setprecision(2)
+              << std::setw(10) << riskResults[k].delta << "\n";
+      outFile << "      => Vega:  " << std::fixed << std::setprecision(2)
+              << std::setw(10) << riskResults[k].vega << "\n\n";
+    }
+    outFile << "--------------------------------------------------\n";
+    outFile << " TOTAL PORTFOLIO PV:    " << std::fixed << std::setprecision(2)
+            << totalPV << "\n";
+    outFile << " TOTAL PORTFOLIO DELTA: " << std::fixed << std::setprecision(2)
+            << totalDelta << "\n";
+    outFile << " TOTAL PORTFOLIO VEGA:  " << std::fixed << std::setprecision(2)
+            << totalVega << "\n";
+    outFile << "==================================================\n";
+    outFile.close();
+    std::cout << " Results successfully written to results.txt\n";
+  } catch (const std::exception &e) {
+    std::cerr << "Failed to write results to file: " << e.what() << '\n';
+  }
 
   return 0;
 }

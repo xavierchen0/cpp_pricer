@@ -41,6 +41,7 @@ public:
   void setPricer(std::shared_ptr<IOptionPricer> newPricer) {
     m_optionPricer = newPricer;
   }
+  std::string_view getPricerName() const { return m_optionPricer->print(); }
 
   double payoff(double underlyingSpotPrice) const {
     return m_optionPayoff->calculatePayoff(underlyingSpotPrice);
