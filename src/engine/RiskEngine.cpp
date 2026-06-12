@@ -1,6 +1,7 @@
 #include "engine/RiskEngine.h"
 #include "instruments/Option.h"
 #include <future>
+#include <sstream>
 #include <stdexcept>
 
 namespace {
