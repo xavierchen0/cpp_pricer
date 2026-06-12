@@ -12,7 +12,7 @@ int getTotalDays(const Date &date) {
       std::chrono::month{static_cast<unsigned>(date.getMonth())},
       std::chrono::day{static_cast<unsigned>(date.getDay())}};
   std::chrono::sys_days sd = ymd;
-  return sd.time_since_epoch().count();
+  return static_cast<int>(sd.time_since_epoch().count());
 }
 
 } // namespace
