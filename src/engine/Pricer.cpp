@@ -58,26 +58,22 @@ double CRRBinTreeOptionPricer::calculatePrice(const Market &market,
 
   std::vector<double> optionValues(static_cast<size_t>(m_timeSteps + 1));
 
-  // Pre-calculate interpolated discount factors and variances for each time
-  // step
+  // Pre-calculate interpolated discount factors for each time step
   std::vector<double> dfs(static_cast<size_t>(m_timeSteps + 1));
-  std::vector<double> vars(static_cast<size_t>(m_timeSteps + 1));
 
   for (int i{0}; i <= m_timeSteps; ++i) {
     Date t_i{asOf + (i * dt)};
     dfs[static_cast<size_t>(i)] = rateCurve.getDf(asOf, t_i);
-
-    double vol_i{volCurve.getVol(t_i)};
-    vars[static_cast<size_t>(i)] =
-        // Total accumulated variance; Variance is additive
-        vol_i * vol_i * (i * dt);
   }
+
+  // Use terminal volatility to build a constant-spacing recombining grid
+  double finalVol{volCurve.getVol(option.getExpiryDate())};
+  double jump{finalVol * std::sqrt(dt)};
 
   // Lambda to get the exact spot price at any node
   auto getSpot = [&](int step, int i) {
     if (step == 0)
       return S0;
-    double jump{std::sqrt(vars[static_cast<size_t>(step)] / step)};
     return S0 * std::exp((2.0 * i - step) * jump);
   };
 
@@ -141,29 +137,25 @@ double JRBinTreeOptionPricer::calculatePrice(const Market &market,
   std::vector<double> optionValues(static_cast<size_t>(m_timeSteps + 1));
 
   std::vector<double> dfs(static_cast<size_t>(m_timeSteps + 1));
-  std::vector<double> vars(static_cast<size_t>(m_timeSteps + 1));
 
-  // Pre-calculate interpolated discount factors and variances for each time
-  // step
+  // Pre-calculate interpolated discount factors for each time step
   for (int i{0}; i <= m_timeSteps; ++i) {
     Date t_i{asOf + (i * dt)};
     dfs[static_cast<size_t>(i)] = rateCurve.getDf(asOf, t_i);
-
-    double vol_i{volCurve.getVol(t_i)};
-    // Total accumulated variance; Variance is additive
-    vars[static_cast<size_t>(i)] = vol_i * vol_i * (i * dt);
   }
 
-  // JR requires p=0.5, so the spot price absorbs both the forward rate and
-  // exact forward variance
+  // Use terminal volatility to build a constant-spacing recombining grid
+  double finalVol{volCurve.getVol(option.getExpiryDate())};
+  double jump{finalVol * std::sqrt(dt)};
+
+  // JR requires p=0.5, so the spot price absorbs both the forward rate and variance
   // Lambda to get the exact spot price at any node
   auto getSpot = [&](int step, int i) {
     if (step == 0)
       return S0;
-    double V_t = vars[static_cast<size_t>(step)];
+    double V_t = step * jump * jump;
     double fwdPrice = S0 / dfs[static_cast<size_t>(step)];
 
-    double jump = std::sqrt(V_t / step);
     return fwdPrice * std::exp(-0.5 * V_t + (2.0 * i - step) * jump);
   };
 

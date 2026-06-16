@@ -28,7 +28,8 @@ RiskResult compute(const ITrade *trade, const Market &baseMarket) {
   marketIrDown.bumpRateCurve(trade->getTradeCcy(), -irBump);
   double pvIrDown{trade->presentValue(marketIrDown)};
 
-  result.delta = (pvIrUp - pvIrDown) / (2.0 * irBump);
+  // Returns PV change for a 1bp rate shift
+  result.delta = (pvIrUp - pvIrDown) / 2.0;
 
   // Calculate Vega with Central Difference
   // Only applied to Options
@@ -44,7 +45,8 @@ RiskResult compute(const ITrade *trade, const Market &baseMarket) {
     marketVolDown.bumpVolCurve("ATM", -volBump);
     double pvVolDown{optionTrade->presentValue(marketVolDown)};
 
-    result.vega = (pvVolUp - pvVolDown) / (2.0 * volBump);
+    // Returns PV change for a 1% vol shift
+    result.vega = (pvVolUp - pvVolDown) / 2.0;
   }
 
   return result;

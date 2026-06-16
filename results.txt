@@ -3,81 +3,81 @@
 ==================================================
   [1] Trade Type: Swap | Ccy: USD
       => PV:     172840.80
-      => Delta: 19003282.29
+      => Delta:    1900.33
       => Vega:        0.00
 
   [2] Trade Type: Swap | Ccy: USD
       => PV:    -1430044.00
-      => Delta: -70102532.46
+      => Delta:   -7010.25
       => Vega:        0.00
 
   [3] Trade Type: Swap | Ccy: SGD
       => PV:    -346051.71
-      => Delta: 20103368.26
+      => Delta:    2010.34
       => Vega:        0.00
 
   [4] Trade Type: Swap | Ccy: SGD
       => PV:     -52840.55
-      => Delta: -76910544.71
+      => Delta:   -7691.05
       => Vega:        0.00
 
   [5] Trade Type: Bond | Ccy: USD
       => PV:     477469.89
-      => Delta: -4074434.46
+      => Delta:    -407.44
       => Vega:        0.00
 
   [6] Trade Type: Bond | Ccy: SGD
       => PV:    -1569040.68
-      => Delta: 7372147.91
+      => Delta:     737.21
       => Vega:        0.00
 
   [7] Trade Type: Bond | Ccy: SGD
       => PV:      99676.64
-      => Delta:  -99728.95
+      => Delta:      -9.97
       => Vega:        0.00
 
   [8] Trade Type: Option | Ccy: USD | Pricer: CRR Binomial Tree
-      => PV:         83.50
-      => Delta:     393.82
-      => Vega:      208.93
+      => PV:         73.77
+      => Delta:       0.04
+      => Vega:        1.91
 
   [9] Trade Type: Option | Ccy: USD | Pricer: CRR Binomial Tree
-      => PV:        302.94
-      => Delta:   -3983.22
-      => Vega:     2568.11
+      => PV:        252.59
+      => Delta:      -0.38
+      => Vega:       25.81
 
   [10] Trade Type: Option | Ccy: SGD | Pricer: CRR Binomial Tree
-      => PV:        288.35
-      => Delta:   -3449.26
-      => Vega:     1863.62
+      => PV:        251.42
+      => Delta:      -0.34
+      => Vega:       18.94
 
   [11] Trade Type: Option | Ccy: SGD | Pricer: CRR Binomial Tree
-      => PV:        199.54
-      => Delta:   -2633.76
-      => Vega:     1730.54
+      => PV:        165.73
+      => Delta:      -0.25
+      => Vega:       17.35
 
   [12] Trade Type: Option | Ccy: USD | Pricer: CRR Binomial Tree
-      => PV:         83.50
-      => Delta:     393.82
-      => Vega:      208.93
+      => PV:         73.77
+      => Delta:       0.04
+      => Vega:        1.91
 
   [13] Trade Type: Option | Ccy: USD | Pricer: CRR Binomial Tree
-      => PV:        409.98
-      => Delta:   -1918.68
-      => Vega:     2295.88
+      => PV:        330.76
+      => Delta:      -0.23
+      => Vega:       24.72
 
   [14] Trade Type: Option | Ccy: SGD | Pricer: CRR Binomial Tree
-      => PV:        312.82
-      => Delta:   -2068.22
-      => Vega:     1785.41
+      => PV:        268.90
+      => Delta:      -0.24
+      => Vega:       18.73
 
   [15] Trade Type: Option | Ccy: SGD | Pricer: CRR Binomial Tree
-      => PV:        214.58
-      => Delta:   -1793.60
-      => Vega:     1714.34
+      => PV:        175.57
+      => Delta:      -0.20
+      => Vega:       17.55
 
 --------------------------------------------------
- TOTAL PORTFOLIO PV:    -2646094.40
- TOTAL PORTFOLIO DELTA: -104723501.23
- TOTAL PORTFOLIO VEGA:  12375.74
+ TOTAL PORTFOLIO PV:    -2646397.10
+ TOTAL PORTFOLIO DELTA: -10472.39
+ TOTAL PORTFOLIO VEGA:  126.92
 ==================================================
