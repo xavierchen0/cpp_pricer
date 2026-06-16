@@ -73,7 +73,8 @@ public:
 
   std::ostream &print(std::ostream &os) const override {
     os << "Bond object [TradeType: " << getTradeType()
-       << ", TradeDate: " << getTradeDate() << ", TradeCcy: " << getTradeCcy()
+       << ", TradeDate: " << getTradeDate() << ", StartDate: " << getStartDate()
+       << ", EndDate: " << getEndDate() << ", TradeCcy: " << getTradeCcy()
        << ", Name: " << m_name << ", Notional: " << m_notional
        << ", Coupon Rate: " << m_couponRate << ", Frequency: " << m_yearFreq
        << "]\n";
