@@ -16,7 +16,7 @@
 int main() {
   // task 1, create an market data object, and update the market data from from
   // txt file
-  Date valueDate{2023, 12, 31};
+  Date valueDate{2025, 1, 1};
   Market market{};
   market.setCurrentDate(valueDate);
 
