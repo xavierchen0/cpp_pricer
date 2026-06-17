@@ -138,31 +138,45 @@ int main() {
     }
   }
 
-  std::cout << " Running Multi-threaded Risk Engine...\n";
-  auto startMulti{std::chrono::high_resolution_clock::now()};
-  std::vector<RiskResult> riskResultsMulti{
-      RiskEngine::computeRisk(portfolio, market, true)};
-  auto endMulti{std::chrono::high_resolution_clock::now()};
-  std::chrono::duration<double, std::milli> msDoubleMulti{endMulti -
-                                                          startMulti};
+  const int numTrials{100};
+  std::cout << " Running Performance Benchmark over " << numTrials
+            << " trials...\n";
 
-  std::cout << " Running Single-threaded Risk Engine...\n";
-  auto startSingle{std::chrono::high_resolution_clock::now()};
-  std::vector<RiskResult> riskResultsSingle{
-      RiskEngine::computeRisk(portfolio, market, false)};
-  auto endSingle{std::chrono::high_resolution_clock::now()};
-  std::chrono::duration<double, std::milli> msDoubleSingle{endSingle -
-                                                           startSingle};
+  std::vector<RiskResult> riskResultsMulti{};
+  std::vector<RiskResult> riskResultsSingle{};
 
-  std::cout << "\n [Performance Analysis]\n";
-  std::cout << "   - Multi-threaded time:  " << std::fixed
-            << std::setprecision(2) << msDoubleMulti.count() << " ms\n";
-  std::cout << "   - Single-threaded time: " << std::fixed
-            << std::setprecision(2) << msDoubleSingle.count() << " ms\n";
-  if (msDoubleMulti.count() > 0) {
-    std::cout << "   -> Speedup Factor:      " << std::fixed
-              << std::setprecision(2)
-              << msDoubleSingle.count() / msDoubleMulti.count() << "x\n\n";
+  double totalMultiMs{0.0};
+  double totalSingleMs{0.0};
+
+  for (int t{0}; t < numTrials; ++t) {
+    // Multi-threaded
+    auto startMulti{std::chrono::high_resolution_clock::now()};
+    riskResultsMulti = RiskEngine::computeRisk(portfolio, market, true);
+    auto endMulti{std::chrono::high_resolution_clock::now()};
+    totalMultiMs +=
+        std::chrono::duration<double, std::milli>(endMulti - startMulti)
+            .count();
+
+    // Single-threaded
+    auto startSingle{std::chrono::high_resolution_clock::now()};
+    riskResultsSingle = RiskEngine::computeRisk(portfolio, market, false);
+    auto endSingle{std::chrono::high_resolution_clock::now()};
+    totalSingleMs +=
+        std::chrono::duration<double, std::milli>(endSingle - startSingle)
+            .count();
+  }
+
+  double avgMultiMs{totalMultiMs / numTrials};
+  double avgSingleMs{totalSingleMs / numTrials};
+
+  std::cout << "\n [Performance Analysis (" << numTrials << " trials)]\n";
+  std::cout << "   - Avg Multi-threaded time:  " << std::fixed
+            << std::setprecision(2) << avgMultiMs << " ms\n";
+  std::cout << "   - Avg Single-threaded time: " << std::fixed
+            << std::setprecision(2) << avgSingleMs << " ms\n";
+  if (avgMultiMs > 0) {
+    std::cout << "   -> Average Speedup Factor:  " << std::fixed
+              << std::setprecision(2) << avgSingleMs / avgMultiMs << "x\n\n";
   }
 
   // Use Multi-threaded results for output
